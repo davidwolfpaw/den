@@ -1,0 +1,763 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>david's Daily Photo Challenge 2020</title>
+<meta name="description" content="david's Daily Photo Challenge 2020">
+<style>
+:root {
+  color-scheme: dark light;
+  --bg: #0d0d0f;
+  --bg-raised: #17171b;
+  --fg: #f2f2f4;
+  --fg-dim: #9a9aa4;
+  --line: #2a2a31;
+  --accent: #f2f2f4;
+  --gap: 12px;
+  --radius: 4px;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg: #fbfbfa;
+    --bg-raised: #ffffff;
+    --fg: #16161a;
+    --fg-dim: #6d6d78;
+    --line: #e2e2e0;
+    --accent: #16161a;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0 auto;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  max-width: 1600px;
+  padding: 16px 24px;
+}
+
+header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--gap);
+  margin: 0 auto 24px;
+}
+
+.home {
+  color: var(--fg-dim);
+  text-decoration: none;
+}
+
+.home:hover { color: var(--fg); text-decoration: underline; }
+
+header h1 {
+  margin: 12px 0 0;
+  font-size: clamp(24px, 6vw, 48px);
+  line-height: 1;
+}
+
+.views {
+  display: flex;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+}
+
+.views button {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--fg-dim);
+  font: inherit;
+  padding: 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.25s, color 0.25s;
+}
+
+.views button:hover { color: var(--fg); }
+
+.views button[aria-selected="true"] {
+  background: var(--fg);
+  color: var(--bg);
+}
+
+
+.status {
+  color: var(--fg-dim);
+  padding: 48px 0;
+  text-align: center;
+}
+
+.month-heading {
+  margin: 48px 0 16px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid var(--fg);
+}
+
+.month-heading h2 {
+  margin: 0;
+  font-size: clamp(26px, 3.4vw, 40px);
+}
+
+.month-heading.compact {
+  margin: 12px 0;
+}
+
+.tile {
+  appearance: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  background: var(--bg-raised);
+  border-radius: var(--radius);
+  overflow: hidden;
+  cursor: zoom-in;
+  position: relative;
+  display: block;
+}
+
+.tile img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  opacity: 0;
+}
+
+.tile img.loaded { opacity: 1; }
+.tile:hover img { transform: scale(1.1); }
+
+.tile:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.tile .daymark {
+  position: absolute;
+  left: 16px;
+  bottom: 16px;
+  font-size: 16px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.75);
+  color: #fff;
+  pointer-events: none;
+}
+
+.row {
+  display: flex;
+  gap: var(--gap);
+  margin-bottom: var(--gap);
+}
+
+.row .tile { flex: 0 0 auto; }
+
+.calendar {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+@media (min-width: 560px) {
+  .calendar { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (min-width: 900px) {
+  .calendar { grid-template-columns: repeat(3, 1fr); }
+}
+
+.calendar-month { min-width: 0; }
+
+.sheet {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--line);
+}
+
+.weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  background: var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.weekdays span {
+  background: var(--bg-raised);
+  padding: 7px 0;
+  text-align: center;
+  color: var(--fg-dim);
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.days .cell {
+  aspect-ratio: 1;
+  border-radius: 4px;
+  background: var(--bg);
+  min-width: 0;
+}
+
+.days .cell.blank { background: var(--bg-raised); opacity: 0.5; }
+
+.days .cell.missing {
+  position: relative;
+  background: var(--bg-raised);
+}
+
+.days .tile { cursor: zoom-in; }
+
+.days .daymark {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  bottom: auto;
+  padding: 2px 4px;
+  border-radius: 2px;
+  background: rgba(0, 0, 0, 0.75);
+  color: #fff;
+}
+
+.days .cell.missing .daymark {
+  background: none;
+  color: var(--fg-dim);
+  opacity: 0.5;
+}
+
+.days .tile:focus-visible { outline-offset: -2px; }
+
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  background: rgba(8, 8, 8, 0.96);
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.lightbox[hidden] { display: none; }
+
+.lb-figure {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--gap);
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.lb-figure img {
+  max-width: min(1600px, 100%);
+  max-height: calc(100vh - 170px);
+  border-radius: 16px;
+}
+
+.lb-figure figcaption {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--gap);
+  text-align: center;
+  color: #d6d6dc;
+  max-width: 68ch;
+}
+
+
+.lb-cw {
+  align-self: center;
+  border: 1px solid #555555;
+  border-radius: 999px;
+  padding: 1px 9px;
+  font-size: 12px;
+}
+
+
+.lightbox button {
+  position: fixed;
+  appearance: none;
+  background: rgba(255, 255, 255, 0.07);
+  border: 0;
+  color: #fff;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: background 0.25s;
+}
+
+.lightbox button:hover { background: rgba(255, 255, 255, 0.25); }
+.lightbox button:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+
+.lb-close {
+  top: 12px;
+  right: 12px;
+  width: 48px;
+  height: 48px;
+  font-size: 24px;
+}
+
+.lb-nav {
+  top: 50%;
+  transform: translateY(-50%);
+  width: 48px;
+  height: 48px;
+  font-size: 30px;
+  line-height: 1;
+}
+
+.lb-prev { left: 12px; }
+.lb-next { right: 12px; }
+
+@media (max-width: 640px) {
+  .lb-nav { top: auto; bottom: 16px; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <a class="home" href="../">← All years</a>
+    <h1>david's Daily Photo Challenge 2020</h1>
+  </div>
+  <nav class="views" role="tablist" aria-label="Gallery view">
+    <button type="button" role="tab" data-view="rows" aria-selected="true">Rows</button>
+    <button type="button" role="tab" data-view="calendar" aria-selected="false">Calendar</button>
+  </nav>
+</header>
+
+<main id="gallery">
+  <p class="status">Loading…</p>
+</main>
+
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Photo" hidden>
+  <button type="button" class="lb-close" data-action="close" aria-label="Close">&times;</button>
+  <button type="button" class="lb-nav lb-prev" data-action="prev" aria-label="Previous photo">&#8249;</button>
+  <button type="button" class="lb-nav lb-next" data-action="next" aria-label="Next photo">&#8250;</button>
+  <figure class="lb-figure">
+    <img id="lb-image" alt="">
+    <figcaption>
+      <span id="lb-date"></span>
+      <span class="lb-cw" id="lb-cw" hidden></span>
+      <span id="lb-caption"></span>
+    </figcaption>
+  </figure>
+</div>
+
+<script>window.__GALLERY__={"year":2020,"photos":[["1-1",1.7766,"#686868","four weekly planners, a journal, a pen, and some markers","#366 I told myself that I'd start the new year with some better planning. So of course I went overboard and got four planners to find the \"best\" one 😅",""],["1-2",1.3333,"#283848","Computer desk with monitor, notes, books, and toys","#366project Shortly before the end of the year my husband and I rearranged my office. I now have some empty space to fit more artwork!",""],["1-3",1.3336,"#080808","library shelves and books","#366project In one of my homes away from home",""],["1-4",0.75,"#d8d8d8","painting of a rainbow with the words Choose Kindness","#366project A reminder that we all need sometimes!",""],["1-5",1.3333,"#181828","dog with flower on collar","#366project My princess got herself a beautiful flower today 🌺🐕🌸",""],["1-6",1.3333,"#080818","swans and ducks in lake","#366project There are quite a few honkers at the lake",""],["1-7",1.7778,"#c8a898","five postcards, a note, and a sticker from Chillhop Music","#366project I got my PenPaws today, time to send out some postcards!",""],["1-8",1.3333,"#f8f8e8","Plants, books, and plushies on a window sill","#366project I have a small jungle keeping my body oxygenated",""],["1-9",1.3333,"#181818","monarch butterfly on flowers","#366project This beautiful monarch was too busy flapping and drinking to care about me taking a picture while on my walk today.",""],["1-10",0.75,"#182838","armchair, BillCatter comics framed on wall, notebooks, Sylveon plush, desk, books, magazines","#366project When I need time away from the computer I step away from my desk... then walk a whole three feet away to my armchair, where I write analog notes and peruse periodicals with my fairy Pokémon.",""],["1-11",1.3333,"#080808","plants at farmer's market","#366project I got to go to the farmer's market this morning with my husband and best friend and mainly avoided the rain!",""],["1-12",0.75,"#181818","lizard on metal fencepost","#366project I love doing closeups where they sit still and pose for me",""],["1-13",1.3333,"#d8d8d8","poetry book, notebooks, toys","#366project I decided to go all moody and artsy with today's photo. A poetry collection from @makyo Madison Scott-Clary. Check them out here: https://makyo.is/",""],["1-14",1.3333,"#080808","Settlers of Catan, laptop, chicken quesadillas","#366project Settlers of Catan, roasted cauliflower, and chicken quesadillas makes for a good dinner time!","food"],["1-15",1.3333,"#080808","bowl of oatmeal and dog looking up","#366project Is that for me?",""],["1-16",0.75,"#181808","Theater standing poster for 'Weathering With You'","#366project Tonight we got to see 'Weathering With You'. I wholeheartedly approve!",""],["1-17",0.75,"#184878","sky, electrical wires, bird","#366project The weather was very pleasant during my walk this morning. My ability to photograph birds when they are closer needs to be worked on.",""],["1-18",1.3333,"#d8c8b8","jam cookies in the shape of paw prints","#366project You've heard of thumbprint cookies, but how about pawprint cookies?",""],["1-19",1.3333,"#080808","clouds changed color by the sun behind palm trees","#366project I'm going to miss this pleasant walking weather for the nine months out of the year that it's dreadful. For now, I'll bask in the sky",""],["1-20",1.3333,"#181818","bowl of oatmeal with berries, bananas, shredded coconut, pumpkin seeds, and whipped cream in it","#366project I know that it's a bit late to post breakfast, but it was so good that I want to eat it again","food"],["1-21",1.3333,"#080808","laptop, notebooks, coffee","#366project Am I working, or am I checkin' on my toots?",""],["1-22",0.6245,"#080808","Hercules statue","#366project I have this Hercules statue on my desk that holds up my phone and notebook",""],["1-23",1.3333,"#e8e8e8","Pecan Kringles at Trader Joes","#366project I love a good kringle","food"],["1-24",0.75,"#181818","corkboard with various pins on it","I have a bad addiction to pins, and this is just a taste",""],["1-25",0.75,"#080818","david with pink hair","Dyed my hair yesterday and feeling good!","ec"],["1-26",0.75,"#181818","waffle macchiato and purple drink from Qreate","I'll blame missing a day on spending all night partying with friends! My best friend took me out for dim sum lunch yesterday, then we checked out this new coffee place where I got a waffle macchiato",""],["1-27",1.3333,"#88a8b8","mudkip with rainbow pride flag and mudkip with trans pride flag over birthday card from The Oatmeal","another gift from someone that I wish I could tag directly from Twitter here. I love these pride mudkips and now just need to figure out where to put them! Stickers are hard, since I always worry that I'll stop using whatever has them 😅",""],["1-28",1.3333,"#d8c8a8","two notebooks, pen, mug with fox dressed as Link, statue, Sylveon plush, on desk","Starting my post early today, because what better way to start the day than with a good drink in a good mug, about to get some writing in!",""],["1-29",1.3333,"#f8f8f8","kobo e-reader on desk with notebooks, keyboard, Sylveon plush, statue","A lot of photos will be at this desk. This time it's reading an article from @gretchenmcc on making a Weird Internet Career",""],["1-30",1.0239,"#181828","action figures including lego minifigs, Donkey Kong amiibo, Wreck it Ralph, Yoshi, and three MailChimps","We like to have fun here",""],["1-31",1.3333,"#282818","Macbook, water bottle, coffee thermos, two notebooks with Pokemon stickers, laptop bag with pins","My office for the morning was full of coffee, podcasts, Ninja Sex Party, and the proper level of background sound, not overly distracting.",""],["2-1",1.3333,"#f8f8f8","front of a microphone large in picture, with Tascam handheld recorder, XLR cable, and SD card behind it","I finally pulled my audio recording gear out to try to get a handle on it all in preparation for a new project!",""],["2-2",1.3338,"#181828","laptop running Vagrant on coffee table with candles","I am working a bit in a romantic environment. So romantic.",""],["2-3",1.5567,"#181818","coffee mug, laptop with eeveelution sticker, WordCamp Tampa water bottle, WordPress Orlando table banner, WordPress pins and stickers","This morning I hosted our monthly #WordPress Coffee Meetup which is a helpdesk event. Got to work with a few people on their sites and get some good coffee!",""],["2-4",1.3333,"#080808","orange, pink and yellow flowers on green bush","Our neighbor has these scraggly bushes lining the edge of the walk that have the most lovely little bunches of flowers on them",""],["2-5",1.3325,"#080818","Pokémon figures","My husband doesn't like grass starters but knows that I do. So much so that he proposed to me with a Bulbasaur in a Pokéball that says, \"I choose you\". And yes, he did this at a Pokémon Symphony :bowie_laugh:",""],["2-6",1.3576,"#a8d8e8","Sunset behind clouds next to bank building","Sunset over downtown while the wind was going crazy",""],["2-7",1.3333,"#f8f8f8","Japanese snacks in paw shaped packages","I don't know what these snacks are, but I pawsitively want them",""],["2-8",1.3336,"#c8b8a8","Mac keyboard and trackpad, two moleskine notebooks with a Sylveon sticker, passport, ruler, space pen, and a sign that says \"With Your U.S. Passport, the World Is Yours!\"","\"The World is Yours\"? I'm not so sure about that, USDOS. My new passport is in, and notebooking is how I spend my Saturday afternoon.",""],["2-9",1,"#282818","chocolate chip oatmeal cookies, dragon statues with plants in them","I have chocolate chip oatmeal cookies because I ran out of butterscotch. I'll share with the bestest snoots, but apologies for all of the pups out there, stay safe with your food!",""],["2-10",1.3333,"#989898","painted manhole cover that says Clean Drains, Happy Cranes","There are lots of happy (and loud!) cranes around town",""],["2-11",1,"#d8d8d8","stickers of cats, Netlify logo, DEV, and a sticker that says Get Some Jam!","The stickers that I got from #FlashbackConf are so cute!",""],["2-12",0.75,"#282828","closeup of bark on tree with moss growing on it","This was already fairly washed out with the dark bark and bright sun out",""],["2-13",0.75,"#080808","statue of a lion with paws on a pedestal and maw open","This lion ain't lyin",""],["2-14",2.608,"#b86858","covers of the comics The Prince and the Dressmaker by Jen Wang, My Boyfriend is a Bear by Pamela Ribon and Cat Farris, Taproot A Story About a Gardener and a Ghost by Keezy Young, and Book Love by Debbie Tung","On this day of love I got some new comics from the library and bookstore to get in the proper mood.",""],["2-15",1.3336,"#484848","baby alligators and turtle in enclosure","I'm in Florida, so of course you can see gators while deciding not to play mini golf because it's too crowded",""],["2-16",1.1181,"#181808","Settlers of Catan and dachshund","Game and puppy night!",""],["2-17",1,"#181828","bone shaped dog treats on baking sheet next to bone cookie cutters","For this #MastoMonday I made some dog treats. Do you think that @hyperlink@snouts.online would like some?",""],["2-18",2.3226,"#485838","a flock of ibis on a yard","Making flight",""],["2-19",1.8788,"#181818","moss garden with Steven Universe and Garnet figurines","I made a moss garden that I keep in my office and it is protected by some of the Crystal Gems",""],["2-20",1.5628,"#181818","an oversized checker/chess board in the middle of a square of large plans and ferns and trees","Come play checkers in the jungle",""],["2-21",1.3333,"#080808","sushi dragon roll and soy sauce","Dragon Roll OmNomNom","food"],["2-22",1,"#181818","my arm with wolfpaw tattoo showing, holding a bolt of fabric with paws, hearts, and the words \"Dogs are my favorite people\"","I have some sewing to do!",""],["2-23",1.3327,"#080808","Ethics presentation on laptop in an empty classroom","This is a room at a tech conference to see a presentation on Ethics",""],["2-24",1.2493,"#b8b8b8","envelope with three stickers on top of it: a crow at night, a cat with antlers, and a blue fox with horns","Check out the cool stickers and card that I got from @anaisfae You should definitely back their Patreon and follow them! https://www.patreon.com/anaisfae/posts",""],["2-25",1.7778,"#484848","various pins on backpack","Got some new pins for my new bag!",""],["2-26",1.3325,"#081808","faded, tilted no parking sign in front of a telephone pole covered in bright green plants with bright pink flower","At what point are you fighting the inevitable?",""],["2-27",1,"#081828","Wolf plush with arm draped over Sylveon plush","Aww, they're friends!",""],["2-28",0.75,"#181828","large Hulk statue with \"Do Not Touch\" sign on butt at Tate's Comics","I swear I wasn't going to! ...ok, maybe a little",""],["2-29",1,"#d8d8c8","dragon roll sushi on plate with chopsticks and miso and ginger","I was so hungry that I forgot to get the whole dragon roll in the shot","food"],["3-1",0.75,"#c89888","David's hand with wedding band, wolf paw tattoo, and martenitsa band","# I was given a martenitsa by my Bulgarian SiteGround friends for Baba Marta Day! I made a wish when they put it on, but all that I can say is that it relates to some friends on the fediverse 💝",""],["3-2",1.7778,"#080808","two dogs in yard","A whole huge yard for them to lie in, but they choose to lie together.",""],["3-3",0.75,"#182828","Legend of Zelda shield and sword on wall above cork board of pins","Breath of the Wild came out three years ago today!",""],["3-4",0.75,"#285878","picture of the sky, clouds, two birds, and tree","The sky was INSANE on my walk earlier.",""],["3-5",1,"#282828","picture of dog with closeup on snout","This big ol' snoot",""],["3-6",1.3333,"#181828","ladybug inside of flowers","This little pink beauty was hiding in a flower",""],["3-7",1.3333,"#282828","front of Foxtail Coffee Co. store with branding of two fox tails in the shape of a coffee bean","I wish I'd been the one to come up with this adorable coffee branding",""],["3-8",1.3333,"#080808","crooked garage with open door in front of house and trees","Not always straight",""],["3-9",1.3333,"#a83808","Pandemic board game with dachshund","Pandemic is still fun, even with monster dog attacks!",""],["3-10",1,"#c8c8b8","woodpecker on light pole, woodpecker in flight, trees","Woodpeckers building a nest and taking flight",""],["3-11",0.75,"#282828","sign of daily specials at bar including Wednesday night trivia","I am late because I was doing this last night then came home and passed out and took no good pics :bowie_sad:",""],["3-12",1.7778,"#181818","Dachshund head over dining room table with Phase 10 cards","This dog will be present for  every game that we play.",""],["3-13",1,"#181818","leaf dragon pin and paint dragon figure","Why even bother trying to find something cuter than these two dragons today?",""],["3-14",0.75,"#c8c8b8","cover of the graphic novel 'Open Borders: The Science and Ethics of Immigration'","I read this book this morning. There are a few minor quibbles that I have with it, but otherwise there are a ton of great cases for open borders in here.",""],["3-15",1.3333,"#080808","photo of the sun behind a tree, with other trees and clouds","The clouds and trees made it not unbearably hot out on this lovely walk!",""],["3-16",0.75,"#c8c8b8","print of a cat with wings, sticker of cat with wings, and envelope that both came in","This print and sticker that I got  from @anaisfae are wonderful! The detail on her work is amazing!",""],["3-17",0.7981,"#080808","picture of a stuffed husky with an Orange County, FL \"Vote, (I Did!)\" sticker","If you are in Arizona, Florida, Illinois, or Ohio there is one message that this woof has for you: go vote in the primaries today!",""],["3-18",1.3333,"#181818","two dogs sleeping on a couch, one on top of the other","Ain't no party like a sleepy boy party cause the sleepy boy party 🐕 😴🐕 😴",""],["3-19",1.3333,"#382828","two Animal Crossing amiibo","Who is totally hyped for tomorrow?",""],["3-20",1.4769,"#c8c8c8","refrigerators in dairy aisle of a grocery store, many shelves empty with specific products still stocked","I feel like grocery stores and food companies can get a much better handle on which flavors and varieties people actually do and don't want to have on hand.",""],["3-21",1.3333,"#585848","snail on sidewalk in the dark","Saw sneaky slimers slinking sidewalks",""],["3-22",1.1714,"#a8a898","chalk drawing on sidewalk that says, \"You Are Beautiful!\", above a picture of a flower","Now for the morning walk (since I remembered!) I saw this in front of a neighbor's house before dawn this morning and it made me smile.",""],["3-23",1.3333,"#d8b878","butterscotch oatmeal cookies on wire tray","Got nothing better than these butterscotch oatmeal cookies today","food"],["3-24",3.8944,"#282838","panoramic photo of David's office","Sometimes I am in the mood to show off my lovely home office, because I put a lot of effort into it and I'm very grateful that we have space for it.",""],["3-25",0.7738,"#181818","David sitting in armchair in front of framed comics. He is wearing a red David Bowie shirt, has aquamarine hair, blue glasses, and is holding a laptop","I'm cheating today since I didn't take this picture. But my husband was working in the office with me and snapped it after telling me that he liked my hair/shirt color combo 😍","not selfie #366Challenge"],["3-26",1.3333,"#080808","dog on sidewalk next to bush looking away from the camera with ears perked up","I think he's spotted something!",""],["3-27",0.75,"#081808","plant tendril covered in aphids and ants","Saw this plant covered in aphids getting farmed by ants on a walk this afternoon.",""],["3-28",1.3333,"#282828","","",""],["3-29",1.3333,"#b8b8b8","Copy of the book Figure Drawing for kids, a blank sketchpad, and a pencil with a keyboard in the top of the picture","Alright, time to improve!",""],["3-30",1.7778,"#d8d8c8","stickers by Lurian from Patreon","I got the latest from the Lurian Sticker Club today, so I figured I'd share some that I haven't stuck anywhere yet. You should back them to get some too! https://www.patreon.com/lurian/",""],["3-31",0.75,"#e8d8c8","Australian Shepherd facing away from the camera toward an open door","She protecc.",""],["4-1",1.3333,"#d8d8d8","office with bookcase, rainbow pride flag on door, guitar hanging on wall","Hung up my guitar in my office to  make it easier to just grab and play a bit during the day. It's been so long since I've played!",""],["4-2",1.3333,"#58a8e8","tree seed pods split open on tree","New life, bursting forth from this tree!",""],["4-3",1.3333,"#c8b898","Gabumon Funko Pop figure in front of box on desk","I told myself that I need no more toys, because obviously. But then this little guy was on sale and I got him, because obviously.",""],["4-4",1.7775,"#383838","side by side photos of a hole through a metal sign. The left is focused on the sidewalk behind the sign. The right is focused on the sign","These detour signs are just trying to fool us into missing the sights",""],["4-5",1.3333,"#080808","the outline of a dog's head in the foreground, with a windowsill of plants in the background","The sky has been dreary all day, giving the room a glow.",""],["4-6",1.3333,"#c8c8d8","a lake with a fence and measuring bar for water level, nearly at the top","It's been a while since it's rained here. After the rain all day yesterday the water level in the lake got really high!",""],["4-7",0.7526,"#385858","yard with trees and power lines in the background, fence, grass and bench in the foreground, and a pitbull snout poking through a hole in the fence","I see you there, pup",""],["4-8",1.9292,"#282818","A woodpecker in a tree","This chirpy fellow was quite active today as we took a walk!",""],["4-9",1.3333,"#080808","table filled with candy and plastic easter eggs","100 days in! We try to cover several holidays for donations, and thankfully we're still able to donate candy and eggs this year.",""],["4-10",1,"#181808","coffee blended with sugar and poured over ice and soy milk in a glass with the WP Engine logo in front of a hot water kettle","A friend introduced me to dalgona coffee this morning. Never heard of it but we had all the ingredients so I figured why not. It's not bad! I'd make it with less sugar next time, but it's still pretty!","beverage #366Challenge"],["4-11",1.3333,"#080808","sidewalk and road at sunset with clouds in the sky. Only a few cars are on the road, far away from the camera.","It was rather pleasant for a jog this evening. Probably because there were almost no cars on the road. Even if it made their engines and music sound even louder than usual.",""],["4-12",1,"#483828","discarded latex glove on grass by the road","The state of roadside trash is much different these days",""],["4-13",0.75,"#283828","tree covered in rows of holes from woodpeckers","I wonder if the woodpeckers found any good food in this tree",""],["4-14",0.75,"#282828","Tree stump in front of yellow house with planters on top of the stump. There is gravel next to the stump with flowers planted in it as well.","One of our neighbors made a very cute looking planter garden last week.",""],["4-15",1.7778,"#989898","chalk artwork on the sidewalk of flowers, leaves, a star, and the words, \"April Distance Brings May Existence\"","A few of my neighbors have really been enjoying sidewalk art and messages for all of us taking walks.",""],["4-16",1.3333,"#e8e8e8","multiple fabric pieces and braided elastic","Kinda late thanks to streaming last night! Pictured: sewing materials that I thankfully already had at home to make masks. Not pictured: My meh first attempt 😅",""],["4-17",1.3333,"#d8d8d8","black and white photo of an overcast sky over a lake with a tree, bush, and dock in the foreground","It's overcast and probably raining again, but in a shocking twist, I'm feeling a bit more sunny today",""],["4-18",0.75,"#181818","hand-sewn face masks with various dog and paw print and celestial designs on a table in front of a Settlers of Catan board","Making face masks turned out alright I think, considering it was my first attempt!",""],["4-19",1,"#988878","dachshund looking up with tissue stuck to his face and a tissue on the ground in front of him","This little  guy knows what he did, and he doesn't seem perturbed at all.",""],["4-20",1.7778,"#181818","Moss garden in box with rocks and plants. There are Steven Universe and Garnet figurines, as well as two pidgey figures","Back to my moss garden today because it's doing rather well! Even some birds decided to come visit!",""],["4-21",0.75,"#a8a8a8","black and white picture of David with a dog face mask and bandana while wearing a Supreme logo David Bowie shirt and a Supreme logo over his eyes that says Quarantine","Had to do a supply run and felt fashionable","selfie, #366Challenge, fashion?"],["4-22",1.3333,"#181818","food, queer propaganda, covid","I got a good amount of fruits and vegetables on sale with my  grocery run yesterday. Roasted cauliflower, sliced vegetables, dip, and sliced fruit for dinner!","food, queer propaganda, covid"],["4-23",1,"#d8d8d8","sticker of a prism with red and blue galaxy swirls in it","I got a lovely surprise in the mail today from @anaisfae who you should probably be backing on Patreon! https://www.patreon.com/anaisfae",""],["4-24",1,"#181818","black and white photo of a tree with concrete face pinned on it as well as a fake woodpecker","He was missing an eye last week, but thankfully the bird didn't peck it off. Though it does look a bit crooked...",""],["4-25",1.7769,"#282828","cat sitting between tree and statue on a lawn","I don't know, what am I looking at, cat?",""],["4-26",1.3333,"#c8c8c8","bag of white chocolate macadamia nut coconut cookies, bag of almond biscotti, and bag of pistachio biscotti. This is next to a Sylveon Funko figure","I expressed to @lisa That I wanted to make biscotti yesterday, and that I wanted the Sylveon Funko about a month ago. She brightened my day by remembering both and safely delivering today!","food, #366Challenge"],["4-27",1.3333,"#d8d8d8","three plates of cauliflower with avocado sauce, three bowls of berries, and a dragon statue planter","Today's lunch is cauliflower in an avocado sauce with chilled berries. A bit of bacon made it no longer vegan, but it would have been tasty without. Just wish the avocado were greener!","food, #366Challenge"],["4-28",0.7569,"#b89888","a framed drawing of downtown Orlando, centered on Lake Eola. The drawing is an outline of an overhead view of the roads. There is a rainbow across the frame from refracted sunlight","I drew this map of downtown when I worked in an office down there. When I left that office I took the map home with me.",""],["4-29",1.3333,"#786858","a sidewalk square with a colored picture of mushrooms, a snail, color splashes, and the words stay vibin","My neighbors are getting pretty good with their sidewalk chalk art",""],["4-30",1.3333,"#f8f8f8","TV with Jackbox game on in background, laptop with Twitch stream in foreground","Jackbox game night!",""],["5-1",1.7771,"#181818","box full of wires and electronic components, rasperry pi zero, arduino boards, and various components for both","I think it's time to start on a new project..",""],["5-2",1.3333,"#080808","turtle on sidewalk covered in water","This little turtle tucked away as I was coming to take a picture of them. They just wanted some sprinkler water!",""],["5-3",1,"#282838","cat paw prints on dew on a car windshield","The dew reveals your secret travels",""],["5-4",0.75,"#a8a8a8","brown lizard on tree behind spanish moss","just blendin in",""],["5-5",1.3333,"#080808","A bush of flowers with a bee flying over them","I love when I get home to review pictures that I couldn't see well in the sunlight and get something great like this",""],["5-6",2.004,"#080818","A picture of the sunrise over a lake, with the sky ranging in hue from blue to deep orange, reflected in the water","The sky was putting off mad 80's synthwave vibes today",""],["5-7",0.75,"#b88838","sharpie drawing on packing paper of Marty and the words \"Thank you!\"","I was looking for some documents and found this package drawing from https://twitter.com/billcatter",""],["5-8",1,"#d8d8c8","cover of the comic \"Diet's a Bear and other problems\", along with a business card and sticker from the artist, Amy Stoddard","I received a comic that I Kickstarted in the mail today and it is short and cute!",""],["5-9",1.3325,"#081828","standing desk, monitor, laptop, plushes, notebooks, and framed prints","Saturday, so I'm \"working\" because why not?",""],["5-10",0.62,"#080808","Foamed coffee over milk with whipped cream and cinnamon in a glass. The glass is in front of a dragon planter and rainbow flag and hand sanitizer","Morning coffee can be dessert if you believe",""],["5-11",1.3333,"#383838","pins from nightlinez art along with a business card","Today I wanted to showcase some of the cool pins that I got from @NightlineZ@snouts.online!",""],["5-12",1.7778,"#c8c8c8","a grasshopper, approximately 2.5\" in length","I took advantage of the cold weather to get a closeup of this fella! They swarm starting around February/March less than a half inch, then a few make it up to 4+\" a few months later, some even more yellow!","insect photo, #366Challenge"],["5-13",1.3333,"#181828","a tree in silhouette with the sun behind it and a blue to pink sky with a white cloud","One thing that I'm thankful for is lovely weather in the mornings and evenings to take walks in to get out of the house.",""],["5-14",1.3333,"#d8e8e8","JDL Werewolf postcard, pins, and stickers","When I saw that @jdlwerewolf@snouts.online put up a new shop for merch, I knew that I needed some of those CMYK pins. https://jdlarts.bigcartel.com/",""],["5-15",1.3333,"#d8c8b8","two small notebooks, a medium notebook, and a larger open notebook. Three pens, two rulers","I may have a notebook problem, but I am ready to break this new grid notebook in with some layout ideas!",""],["5-16",1.7778,"#c8c8b8","a fortune cookie paper that says \"Achieving peace of mind is a worthwhile goal.\" from Panda Express","First, you're not even a fortune. Second, I got my sugar chicken for the day, now I gotta achieve peace of mind? smh",""],["5-17",1.7778,"#a8b8c8","rainbow and clouds over a restaurant","Going to pick up food with a light rain",""],["5-18",2.0202,"#080808","a black snake in the grass and leaves","I probably could have gotten right on to this little fella while on a walk, but they were frozen in that \"Oh gosh, I hope that he can't see me\" way.",""],["5-19",1.3333,"#383828","containers of cherry tomatoes, assorted vegetables, and assorted berries","I did a bit of food prep after going to the grocery store. Snack and mealtime go!","food, #366Challenge"],["5-20",1.3322,"#282818","A bird perched in a tree","Just a very loud bird who did not stop singing as I moved in for a picture.",""],["5-21",1.3333,"#f8f8f8","mixed color cat on the roof of a blue house","Don't give me that look, you're the one who climbed up there!",""],["5-22",1.3333,"#283818","bird perched on post in lake, with an oak tree and flowering bush in foreground.","While the sky and weather report tease us with more \"Maybe thunderstorms? Shrug?\", a morning walk got this bird who posed the more I approached",""],["5-23",0.7505,"#988858","grasshopper climbing down a cyclone fence","Just moseying down this fence like it ain't no thing","insect"],["5-24",0.75,"#181818","dog looking at me while giving me his paw","He'll give his paw, but he demands treats in return",""],["5-25",0.8834,"#282828","picture of a dachshund head with his mouth open","Fact: It is impossible to get a picture of this beast that is not blurry. He is in constant motion.",""],["5-26",1.7793,"#e8e8e8","dark storm clouds behind a highway and power lines","The calm before the storm? Wish I got a better picture of that funnel looking cloud beyond the highway",""],["5-27",1.3333,"#181818","coffee mug, notebook, pen, and three books: Joy and Work, The Religion of Technology, and Against Happiness","With power back I prepared a hot beverage to start some light reading",""],["5-28",1.7778,"#686888","a goose or swan in a lake at dawn with purple/pink light and the background in silhouette","Horrible Goose needs some downtime too",""],["5-29",1.3333,"#080808","two dogs curled up together on a couch","Puppy wife, puppy life.",""],["5-30",1.3333,"#284878","the sky, with the SpaceX Dragon capsule visible in the sky with a contrail behind it","A streak across the sky",""],["5-31",1.3333,"#184808","red flowers on a branch","I'm just a tiny ant, walking on a flower",""],["6-1",0.75,"#385888","cold oatmeal and shredded apple with raspberries, blackberries, shredded coconut, and cinnamon sprinkled on top in a bowl with a spoon","Overnight oats with coconuts and berries. One thing will go well today at least!","food"],["6-2",1.3333,"#c8c8c8","","",""],["6-3",1.7778,"#181828","sky in the morning before sunrise with pink, purple, and orange clouds in the sky over a lake","The storms last night raised the lake and prettied the clouds",""],["6-4",1.7778,"#181818","an egret on the left near a lake, a cormorant on the right on a post, the frame divided by a tree with a \"Private Property No Trespassing\" sign","Birds can read signs. They just don't care.",""],["6-5",1.3333,"#181808","a dachshund sleeping on a human leg on a day bed","I wanted to get up, but I was trapped.",""],["6-6",0.693,"#080808","a pikachu with a taped on heart tail pin from Spooky Fanny","I love this trans pikachu from @shade@redroo.ml, just in time for Pride Month!",""],["6-7",1.3333,"#181818","a Philly Pride flag on a pole in front of a light blue house with a cloudy sky in the background","Finally got a replacement flag for the front of our house! I think that this one is better.",""],["6-8",1.3333,"#080818","a picture of the sky, taken through horizontal blinds. The sky is dark with clouds and trees and power lines are visible","Dreary day.",""],["6-9",0.75,"#181818","wolf incense burner with lit incense","awoo makes my office smell good",""],["6-10",1.7778,"#b8b8a8","the book 'ally', bu Madison Scott-Clary, with cardboard laser etched with ascii art and the book title on either side. A mac keyboard is in front, holding the book and cardboard up","For coolest packaging of the year, @makyo packed her newest book, 'ally', in cardboard with ascii art lasered in to keep it safe during shipping. Looking forward to reading it!",""],["6-11",0.75,"#888888","egret perched on partially submerged fence in a lake, with the sunrise filtered behind clouds behind it","This morning was a beautiful start to a hot and humid day",""],["6-12",1,"#182838","part of the Pulse Memorial in Orlando, showing the names of the people killed on 12 June 2016, with a heart of 49 candles and a bouquet of flowers","They were LGBTQ+ PoC. Don't let them be forgotten.",""],["6-13",1,"#080808","computer case and computer parts on a table next to a monitor, ready to be assembled","Soon. Very soon.",""],["6-14",1,"#e8d8b8","M.2 1 terabyte hard drive next to a USB drive in the crook of my left hand","Still can't believe that terabytes of data fit onto these thin cards",""],["6-15",1.7762,"#181818","A lizard molting while standing on a bird statue atop another bird statue in front of a tree and bushes","I claim mastery over both of these birds as I molt!",""],["6-16",1.3333,"#3898b8","DuckDuckGo billboard that says \"Want The Same Internet, But More Privacy? We Got You.\"","Now they've got a static billboard I can't click the link.",""],["6-17",0.6943,"#383828","David and Timothy standing in front of a bench and peacock fountain","Cheating with an old photo today to celebrate three years of marriage with @Timothy I love you booboo, for now and many more years :bowie_heart:","seflie, ec, sappy, #366Challenge"],["6-18",1,"#888848","homemade guacamole with a spoon sticking out","Gotta fuel up for game night. Chunky homemade guacamole it is","food"],["6-19",1.7778,"#181818","Thank you card, three eyed cat sticker, and buziness card from NightlineZ Art, and cat sticker by Anais Fae","I love postal art days! More sweet stickers from @NightlineZ@snouts.online and @anaisfae@icosahedron.website",""],["6-20",1,"#181818","six teal eyeglass containers with packaged eyeglasses inside","When they cost under $10/pair I don't mind trying several out. When they somehow all have the prescription off I do 😔",""],["6-21",1,"#080808","television mounted to wall with Destiny 2 on it, gaming PC below, and five posters above and to the right of the television","I finally got some posters hung up in the game room. And got the gaming PC mainly working!",""],["6-22",1.7778,"#181818","black and white picture of turtle in its shell on cement","Turtle goes bye",""],["6-23",0.6895,"#080808","a small slice of pizza in a hand with a wolf paw tattoo on the wrist","Tim brought home pizza for dinner, but this is all that I get","food, #366Challenge"],["6-24",1.7778,"#080808","dachshund lying on floor mat and electrical cable","Thankfully he was able to make it back to his base to recharge before his battery died",""],["6-25",1.3333,"#e8d8b8","cards, box, and instructions for the game \"hey cutie: a tabletop dating sim\"","This arrived fast! Time to date some cuties!",""],["6-26",1.3333,"#080808","black and white picture of a desk with a monitor, keyboard and trackpad, and a microphone setup","Online presentation time is a snap wiht a simple setup",""],["6-27",1.7778,"#282828","dog smelling a stump that is carved into the shape of a frog","My puppy found a friend to smooch",""],["6-28",1.3333,"#080808","a mushroom sprouted among dead leaves and the dirty ground","an umbrella for the forest bugs",""],["6-29",0.6463,"#c8c8c8","Eevee Pokémon pin from Irisidium Pins holding a rainbow pride flag","Ending pride month with a perfect Eevee",""],["6-30",0.8122,"#584838","David wearing glasses and dog face mask, Animal Crossing shirt, with pink hair","I had to make a (classy) trip to the store (safely?)","selfie, ec, :boosts_ok_gay:"],["7-1",1,"#d8d8c8","heron in front of a lake","Halfway through the year!",""],["7-2",1.7778,"#181808","four dogs sitting on a patterned carpet","We've got a full room for game night. A full room of pups that is!",""],["7-3",1.7778,"#381808","hand on a Ticket to Ride board","I love game nights",""],["7-4",1.7778,"#181828","internals of a tower computer showing the graphics card, CPU, and RAM","We have all of the power",""],["7-5",1,"#c8c8c8","black and white picture of a snail moving on a sidewalk","I'm outta here",""],["7-6",1.3333,"#d8b898","covers of the books, 'A Quick & Easy Guide to Queer & Trans Identities', and 'A Quick & Easy Guide to They/Them Pronouns'","I'm still waiting for my copy of 'Be Gay, Do Crimes', but these will tide me over until then!",""],["7-7",1.7762,"#e8e8e8","two herons on a dock in front of a lake, one perched on the roof of a boathouse","just chillin by the lake",""],["7-8",1.3333,"#080808","red australian shepherd sleeping on a green couch","She sleeps.",""],["7-9",1.3333,"#081818","standing desk with laptop, monitor, keyboard, trackpad, coffee mug, water bottle, and light-up rainbow","I wanted to gay it up a bit while working today.",""],["7-10",1,"#e8e8d8","painted figurine of a chef dragon holding a pizza on a checkerboard base","This wonderful dragon figure was painted as a gift for Tim by my friend Ben. Such detail that my photo does not do it justice 💝",""],["7-11",1,"#181818","Trader Joe's sign with store rules and hours","Gotta queue to enter the grocery store, and it was still jam packed in  there",""],["7-12",1.3333,"#281828","beetle on a sidewalk","Someone is a little fuzzy","insect"],["7-13",1.3333,"#181818","mug with a picture of a fox dressed as Link from Legend of Zelda on a post in front of the sunrise on a lake","Rise and grind, gaymers",""],["7-14",1.3333,"#080808","purple house behind tree with purple flowers in shade","Our neighbors have this great purple scheme going on with their house and plants",""],["7-15",1,"#282828","selfie of David in Gengar shirt holding red iPhone SE 2020 with David Bowie sugar skull sticker","First pic with new phone is of new phone of course",""],["7-16",1.7778,"#a8a8a8","small snake on pavement","They smol wet",""],["7-17",1.3333,"#284808","purple passion fruit flower in bloom","Passion in bloom.",""],["7-18",1.3333,"#181818","David's left hand with paw print tattoo on left wrist, with two sets of dog paws around him","With our paw powers combined!",""],["7-19",1.3333,"#080808","mug with a fox wearing a Link outfit full of a dirty soy chai latte in front of a sketchbook and laptop","I just made a dirty soy chai latte. Now let's start the day.",""],["7-20",1,"#383838","small pink flowers with yellow stamen on purple leaves","tiny blooms",""],["7-21",1.3333,"#c8c8b8","page from the book \"They Drew As They Pleased\" showing three dog drawings","Got this \"used\" book for some classic Disney reference, and was pleasantly surprised that it was still wrapped in plastic in great condition.",""],["7-22",1,"#080808","petting a black cat on the neck","I made a blurry friend",""],["7-23",1.7778,"#080808","sunrise over lake with trees","I cheated again with a pic that Tim took, but the sunrise this morning was too good",""],["7-24",1.3333,"#180818","tv and computer monitor showing a streamed Jackbox game with a keyboard, mouse, and microphone","Jackbox night!",""],["7-25",1.3333,"#284848","reflection of hot air balloon in swamp","just a balloon. floating over a swamp.",""],["7-26",1,"#885858","small grasshopper standing on a hand with pink painted fingernails","tiny fren.",""],["7-27",1,"#585858","sticker on an electrical box that says Abolish OPD","Nuff said.",""],["7-28",1.7778,"#080808","A table with the game Elysium setup. A water bottle is in the foreground with a kraken sticker and a rainbow dragon sticker visible on it.","Getting set for game time!",""],["7-29",1.253,"#d8c8c8","linux fox stickers and Werefox business card","Thank you for the pretty sweet stickers @shadow8t4@masto.werefox.dev!",""],["7-30",1.7762,"#d8d8c8","two hawks in a tree behind a blue house with a Philly Pride flag","We've got some hawks that live behind our house, and both were hanging out this morning.",""],["7-31",1,"#d8d8d8","a shed cicada carapace","fuzzy shell",""],["8-1",1.7778,"#080808","Ticket to Ride board setup with people playing","I've got a Ticket to Ride",""],["8-2",1,"#080818","a variety of brunch foods including scrambled eggs, biscuits and gravy, mimosas, waffles, and fruit on a table with a dog in the background","bruuuuuunch","food"],["8-3",1.7778,"#082818","sign on counter that says, \"Please keep furry friends off the counter\"","The fact that they needed a sign in the first place...",""],["8-4",1,"#e8d8c8","a sign that says \"Be Safe Your Way\" at Joanns in front of cotton masks that look like denim jeans","You've heard of jorts But what about jasks? 👖😷",""],["8-5",1.7778,"#080808","three people sitting on a couch, two looking at the camera","A couch of cuties 💝","ec"],["8-6",0.6528,"#a8a898","Ash Coyote Enamel Pin from the Fandom","Got my Fandom pin of Ash with a camera!",""],["8-7",1,"#181818","fabric cut and sewn in the shape of masks without straps or pleating yet in front of a potted succulent","Tim is working on some new cotton masks, and I'm already pleased with the patterns",""],["8-8",0.9518,"#282828","screenshot of a phone screen showing a conversation and keyboard. The text, \"And my hubsand's\" is typed, with the suggested word of \"girlfriend\" showing.","Just pointing out that I've never typed the phrase, \"my husband's girlfriend\" for it to have learned this phrase from me",""],["8-9",0.5094,"#080808","shelves of various packages of M&Ms at a grocery store","How many M&Ms do you have to stock to still not carry pretzel?",""],["8-10",0.8125,"#c8b8a8","selfie of David with blue/green hair, wearing glasses, a dog face mask, a dog paw/bone pink bandana, and a Gengar shirt","Bark bark. I am a dog and this is a stickup.","selfie, ec, #366Challenge"],["8-11",1.3333,"#080808","","",""],["8-12",1.3333,"#282828","lizard on glass door behind an American flag star and bell","This lizard wants in",""],["8-13",1,"#080808","fluffy dog looking at camera in front of hand with paw tattoo","I met a super fluffer and I am in love",""],["8-14",0.75,"#080808","water bottle with totoro sticker, and Star Fox and Star Wolf stickers that say \"I'll Be Your Smash Bro\"","I'll Be Your Smash Bro",""],["8-15",1,"#882808","two dogs lying on a bed next to a pair of legs with a laptop visible on top of them","I was blessed with two pups as I rested my foot on a heating pad today",""],["8-16",0.75,"#080808","iced coffee drink with whipped cream in front of dragon succulent planter","I took an impromptu nap, so I rewarded myself with an iced coffee beverage","beverage, 366Challenge"],["8-17",1.3333,"#080808","view through a glass door onto a front lawn in a rainstorm. Waterlogged roads and a wet pride flag can be seen","it's really coming down today!",""],["8-18",0.7703,"#d8c8c8","multiple piece of felt in various colors, stacked atop one another at an angle","Project time!",""],["8-19",1,"#c8b8b8","snail on mailbox post in focus, with out of focus yard and street behind it","Watch me smol. Watch me crawl.",""],["8-20",1.3333,"#181828","picture of an under-construction overpass from below during a rainstorm from inside of a car","Under the Over pass",""],["8-21",1,"#481818","card game hey cutie setup for play with several cards displayed on the table","Finally got to playing hey cutie this evening! Tim kicked all of our butts on the dating scene",""],["8-22",0.9211,"#080808","bulletin board covered in pins and pin cards","I've been putting up more pins because I have so many pins",""],["8-23",1.7778,"#e8d8c8","a sidewalk view of a hill, houses, a big box retailer, a lake, and many clouds","I present to you: a hill! Seriously, we don't really have these where I live, so it's a sight to me.",""],["8-24",1.3333,"#e8e8e8","foil sticker of a hopping wolf being held in a hand with a wolf paw tattoo and multi-colored wedding band","beautiful foil wolf from @anaisfae",""],["8-25",1.7778,"#c8c8c8","Three Gojii Music stickers stacked next to each other. They are of Gojii the mouse with glasses on, a crown on their pink hair, a collar with a tag","This is the house of mouse @GOJIIMUSIC@snouts.online",""],["8-26",1.7778,"#a89888","two caterpillars with long spines on a vine that is suspended in the air","Sharp, but fuzzy caterpie time",""],["8-27",1.7778,"#c8b8a8","a variety of handmade cotton face masks","So many face masks! I just sent a good sized shipment out this morning, and we have some others being made already. Eventually I should slow down on this 😅",""],["8-28",1.7778,"#080808","a black and white picture of a lizard standing on top of a duck statue","I like to survey my domain",""],["8-29",1.7778,"#c8c8b8","political volunteers stand around Florida state house rep Anna Eskamani with a dalmatian puppy in front of her","I met a puppy today! And passed out some progressive literature I suppose. But puppy,,",""],["8-30",1.3333,"#685858","a collection of acrylic pins of fursonas pinned to the front of a moss garden that has a Steven Universe, Garnet, and two pidgeotto figures","These pins. Look at them!",""],["8-31",0.75,"#080808","electrical box on sidewalk painted with hibiscus flowers","I love that the city not only allows, but pays for people to paint dumpsters, fences, and electrical boxes",""],["9-1",1,"#b8a8a8","small gecko on hand in front of grass yard","smol bebe",""],["9-2",0.75,"#080808","cat on sidewalk getting pet","I can pet, but I can't distract from squirrels in trees",""],["9-3",1.3333,"#f8f8f8","avocados on a tree with sun shining on them","Time to make some guac",""],["9-4",1.3333,"#083868","a home office with two monitors, a microphone on a mount, an armchair, a pride flag, and a dog on the floor","My office is getting cozier and comfier as we speak",""],["9-5",1,"#181818","David holding a lab/pit mix dog","He absolutely loves getting picked up and doesn't hate it at all","ec, photo challenge"],["9-6",1.7778,"#181818","little library in a yard with a sunny scene painted on the side and the words have fun","I like books",""],["9-7",1.7778,"#080808","butterfly perched on plant leaves","beautifly",""],["9-8",1.3333,"#d8c8c8","A collection of stickers from Kindred","Who ordered the gay? I ordered the gay. https://www.kind7ed.com/",""],["9-9",1.3333,"#b8b8b8","black and white close up of a coniferous tree with sap dripping from a branch","It's a drip drip drip kinda day",""],["9-10",0.75,"#d8c8b8","frog on the side of a metal pole in front of grass","They grip, no slip.",""],["9-11",1,"#78a868","small yellow flower on green leaves in the foreground with out of focus grass in the background","we all need a little splash of extra color sometimes",""],["9-12",1,"#787868","a siberian husky paw print in sand","She stalks.",""],["9-13",1.7778,"#080808","five small yellow and white mushrooms growing in mulch in front of some bricks","seen while tripping",""],["9-14",1,"#584838","pit bull poking nose at hand through a hole in a fence","he is a big, friendly cutie who pokes his head through the fence for pets",""],["9-15",1,"#c8c8b8","small lizard on tabletop next to a magazine, glasses, and microphone","Hello friend!",""],["9-16",1,"#b8b8c8","several bugs on leaves of a vine under the pole of a chain link fence","If we could all be so industrious...",""],["9-17",1,"#186878","two small moleskine notebooks and a pen on top of a map mat","Back to journaling",""],["9-18",1.7778,"#181808","a closeup of a tiger jaws succulent in front of another plant in a fox planter","They call me \"Tiger Jaws\"",""],["9-19",1.3333,"#181828","a microphone in an arm lit up","And we're live",""],["9-20",1.778,"#e8f8e8","rain falling from a cloudy sky in front of a shed, fence, and trees, with one tree broken and fallen over","All day rain",""],["9-21",1,"#080808","rows of small plants in a hardware store display","Never enough plants",""],["9-22",1.7793,"#080808","a house with the windows boarded up, with the text \"Keep it up, Dorian\" painted on one boarded window, and the text \"We have your picture!\" on the other","I have many questions.",""],["9-23",1,"#080818","top of my head, bleached blonde but with a patch that didn't get enough bleach, showing some dark roots and blue tips","Oops, missed a spot bleaching. Guess I'm doing blue again",""],["9-24",1.3333,"#080808","blurry picture of a dog lying on a bed with his head on a pillow","He's so tired that he stole my pillow and went out of focus",""],["9-25",1,"#383838","black and white picture of Dragon's Milk Bourbon Barrel-Aged Stout","Part of me wants to try it because, you know.",""],["9-26",1.7778,"#080808","a rainbow of light on a wall casting a shadow on a chandelier","my house is so gay.",""],["9-27",1.3333,"#f8e888","inside of a cabana canopy with green and yellow stripes","pool time is shade time for me",""],["9-28",1.7778,"#080808","an orange and white cat sleeping on a cat tree in a pet supply store","Can't help me find what I'm looking for; on break",""],["9-29",1.3333,"#281808","a hand making \"the game\" hand symbol in front of a Legend of Zelda Clue board setup for a game on a table","I did, in fact, lose the game.",""],["9-30",1.3325,"#a8a8a8","a black and white picture of a road, some power lines, the full moon low in the sky, and a powered paraglider","I fly when the moon is full",""],["10-1",1,"#080808","a face mask getting sewn with a sewing machine that has foxes printed on it","Making more masks time!",""],["10-2",1.7778,"#181818","a diorama of succulents, a small adobe house, and a lizard sitting on a rock","At the garden I saw a desert dweller.",""],["10-3",1,"#780808","a wasp in a red flowering branch with its head directly between stalks, looking like the flower is growing from its head","I have a flower growing out of my head!!!",""],["10-4",1.7778,"#e8e8e8","close up of leaf with raindrops hanging from the bottom","It was nice to take a walk on a rainy morning to spend the last day of my puppy's visit",""],["10-5",1,"#d8d8e8","a bird standing on top of a small bird house, looking toward the camera","They are guarding a home that is far too small for them anyway!",""],["10-6",1.3333,"#f8f8f8","a computer desk with two monitors, a laptop, keyboard and trackpad, microphone, and above them four prints of fursonas hung in frames","This is the best version of family photos, right?",""],["10-7",1.7778,"#282808","closeup of moss growing on bricks","a tiny forest, shot from above",""],["10-8",1.7778,"#080808","white moth on a Philly pride flag","The moth don't care if the flame is real 'Cause flame and moth got a sweetheart deal And nothing fuels a good flirtation Like need and anger and desperation",""],["10-9",1,"#285898","a bald eagle nesting on top of a cell tower, photographed from below with a palm tree, traffic lights, and light clouds visible","We've got a young bald eagle starting a new nest near my house",""],["10-10",1.7778,"#e8d8b8","sealpoint colored cat making a squished face","She is absolutely shocked to be held by a dog",""],["10-11",1.7778,"#a8b8c8","a mural on the side of a building that says \"Greetings From Orlando Florida\"","Though it rains, it is still bright here",""],["10-12",1.7778,"#080808","dachshund staring at an armchair with a cat behind it in a home office","He is such a nosy dog. Because of the long nose. And the cat that doesn't want him.",""],["10-13",1,"#383818","a mockingbird in a tree with a blue sky and clouds in the background","very loud, barely hidden.",""],["10-14",1.3333,"#081818","home office desk with monitors, keyboard, trackpad, mic, Nintendo Switch, progressive pride flag, hung comics","Some days get so busy that the screen doesn't even come on",""],["10-15",1,"#0838a8","six framed fursona portraits on a wall next to a lamp and armchair","I've expanded and repositioned my partner portrait wall. Smooches all around :bowie_wink:",""],["10-16",1,"#283848","a picture of the sky with whispy altostratus clouds and a helicopter in the lower left corner","They're flying, but where do they go?",""],["10-17",1.5331,"#c8e8e8","inside of Buffomet book, poster, pin, and sticker","Finally got my demon goat porn",""],["10-18",1.3333,"#182828","a rainbow striped door in the side of a live oak tree","Found the entrance to my forest hideaway",""],["10-19",1.7778,"#181818","two electric car parking spots covered in moss on the ground, surrounded by grass, a tree, and cars in normal spots","I feel like there's some story of technology encroaching on nature to be told here.",""],["10-20",1,"#080808","unused bird nest in a tree","Waiting for new residents next year",""],["10-21",1,"#080808","a dog looking at a cat who is curled up in a bed on an armchair with a backpack hanging on the wall behind them","Awake dog can't let a sleeping cat lie.",""],["10-22",1,"#080808","Bulbasaur tattoo on an arm in front of a black shirt with a white skeleton riding a skateboard","Bulbasaur is the best Pokémon.",""],["10-23",1.7778,"#c8d8c8","a jackknifed truck and trailer in the grass median on a highway. A Jeep and fire truck are visible in a rear view mirror","I guess this is worth stopping all lanes of traffic.",""],["10-24",1.7778,"#c8c8b8","two dogs on leashes walking on a sidewalk, with a rear view of human legs between them","pup, butt, pup.",""],["10-25",1,"#080808","the Betrayal board game setup with players moving dice and cards","There has been a betrayal...",""],["10-26",1,"#d8c8b8","petting a cat on a floor with a wolf paw tattoo visible","I made another new friend today",""],["10-27",1,"#a8a8a8","a paw print drawn on a sidewalk with a pressure washer","I wonder if my neighbors are furries. Alternate title is CW: Macro",""],["10-28",1,"#c8b898","a cat laying on a couch, a dog laying on the floor, both looking up and to the left of the camera","Unlikely animal friends? More likely than you think.",""],["10-29",1.7778,"#084848","IKEA display of stuffed animals in swings","I see that IKEA employees were having a good time setting up this display.",""],["10-30",1.7778,"#d8c8b8","four sandhill cranes walking in front of an apartment building","Nothin' much, just strutting. You?",""],["10-31",1.7778,"#c8b888","two people in kigurumis, one a Spyro and one a wolf","Happy Halloween!",""],["11-1",1.7778,"#080808","inflatable Halloween decorations in front of a house with a Puerto Rican and rainbow flag hanging","It's still spoopy season, for just a bit longer.",""],["11-2",1,"#080808","a Trader Joe's sign with details on how to be safe for others in the store","Trader Joe's near me has such a messed up parking lot that I get stuck in it before I realize that it's got a line down the block. At least I got to see a nice gator",""],["11-3",1.3333,"#381808","the Pokemon board game on a table being played with several drinks around it","Spending the evening on board game time",""],["11-4",1,"#d8b898","cat looking directly at the camera on a lap","This kitty is oh so pretty",""],["11-5",0.75,"#181818","A stuffed bunny on a microphone mount","Ready to go live",""],["11-6",1,"#d8b888","an air plant in a glass container with rainbow colored balls on a string","Even my plants are gay!",""],["11-7",1,"#684838","two hands of two people, palms atop one another, with a rose cupped in the palm and a wolf paw tattoo on the left wrist","The name is love 🥰",""],["11-8",1.7778,"#080808","two people and two dogs on a trail in lush, green trees covered in spanish moss","We took a walk into the woods today.",""],["11-9",1,"#484848","a lake obscured by trees with spanish moss","Got a nice calm, sunny morning before the storm.",""],["11-10",1.7778,"#080808","ferns growing on a tree branch","Hello, my name is Fern.",""],["11-11",1.7778,"#284858","a cat sitting on a shelf next to a row of Nintendo Switch game cases","She is such a gamer girl.",""],["11-12",1,"#080808","leopard gecko leaning out of enclosure","He says he's out of here.",""],["11-13",1,"#281818","a hand drawing a card from the game Here to Slay, with multiple hero and monster cards on display","There goes my hero! 🎵  And another and another!",""],["11-14",1.3333,"#d8d8d8","a collection of stones spread out, with a white, square shaped stone in the lower right","Just a pile of stones",""],["11-15",1.3333,"#080808","dog sitting on top of a large shark stuffed animal","He just always looks grumpy, not just around sharks.",""],["11-16",1.7778,"#684838","two glowing rings held in a hand. The left is black and blue. The right is red and blue","It's crazy how bright our rings glow after exposure to intense light",""],["11-17",1,"#181818","close up of face masks in fabric with peacock feather designs and skull designs","New masks time! This time some spoopy ones and some peacocking ones.",""],["11-18",1.3333,"#080808","cat close to lens looking at the camera in front of a computer desk with a keyboard, notepad and pen, and some figurines","She wants me to stop shifting my lap around so much.",""],["11-19",1.7778,"#b8a898","a monitor showing an Intel screen in a fast food restaurant under a Pick-Up Here sign","can I get a BIOS with my burger?",""],["11-20",1,"#080808","partial cover of the Iron and Wine album 'Kiss Each Other Clean'","Gonna listen to a new-to-me Iron and Wine album yall",""],["11-21",0.75,"#382818","citrus tree in a pot on a rainbow paw print mat in front of a sliding glass door","We're going with a live citrus tree to decorate this year. That way we can plant it in the yard and get fruit! It's already got some fruit and blossoms",""],["11-22",1.7778,"#080808","rainbow over a lake, reflected in the lake water, with a dock and tree in the foreground","It ended up being such a pleasant day out today, and the sunset was wonderful.",""],["11-23",1.3342,"#e87838","Colors Scrub Daddy sponge in a box next to Scrub Mommy sponge in a box","The straights have taken to gendering cleaning supplies too.",""],["11-24",1.7778,"#181818","denims being worn on a butt, with a printed label stuck to them that says BUTT","It's written on the tin.",""],["11-25",1,"#080808","a trunk of a tree that has been cut and shaped with a face on the front","While on a late night stroll, a new friend was discovered.",""],["11-26",1,"#080808","a MIDI interface on a shelf next to some plush animals and an Animal Crossing amiibo","Making music with fluffs",""],["11-27",1.3333,"#081828","an australian shepherd sitting on a dog bed, holding another dog bed in her paw","It's a holiday. She can have two beds today.",""],["11-28",1,"#080808","a wood, laser engraved dice tower with four dice at the base and four next to it in a dice rolling bin","Card XVI: The Tower",""],["11-29",1,"#080808","a picture of two men standing in front of a line of trees. One is wearing a blue shirt that says Not a Werewolf. Both are wearing masks and the other man is kissing the first through the mask","On this full moon I needed to be sure that the world knows that I am *not* a werewolf. But I am a werewolf boyfriend.",""],["11-30",1.3333,"#080808","A metal sign with a picture of an otter doing a blep, with text describing it as a River Otter","lil blep.",""],["12-1",1.7778,"#080818","the full moon behind altostratus clouds framed on the bottom by the silhouettes of trees","The moon was pretty cool behind the clouds this morning",""],["12-2",1.7778,"#484848","lizard on cement","The chilldown made this husky lizer slow down enough for an up close shot.",""],["12-3",1,"#c8a8a8","eyes of a cat in a hand-hold hole in a cardboard box","I set down an empty box and unintentionally created a cat-trap in my office.",""],["12-4",1.7778,"#080808","a lab dog lying on a bed on a purple blanket with an IKEA husky dog plush on top of him with the plush tongue on his head","He has no idea what's going on, but feels like he was caught in a compromising position.",""],["12-5",1,"#080808","Two plush mice, one white and one brown, in a fake matchbox decoration. They are under covers and embracing as if preparing to sleep.","This is the holiday content that I am here for.",""],["12-6",1,"#c84838","a cat sitting in a 3D Printer looking toward the camera","Human hands? ❌  Cats? ✅",""],["12-7",1.7778,"#e8e8c8","five PHP Elephants in front of two monitors and next to a wireless keyboard and trackpad","My herd of elephants is one stronger.",""],["12-8",1,"#e888a8","A picture book for children on a display that is titled \"Meet Tiger\", with the words in the tiger's maw","Have you met tiger yet? You will.",""],["12-9",1.7778,"#486848","a large wasp nest swarmed underneath a large vine leaf on a tree","Oops, all wasps.",""],["12-10",1,"#183838","Animal Crossing themed cotton fabric in hand with wolf paw tattoo over linoleum floor","Darn, now I have to sew more face masks 😷",""],["12-11",1.7778,"#382828","a dragonfly on a white post","We are dragon, we are fly",""],["12-12",1.3333,"#080808","a propane fire pit lit with blue glass around the flame. Next to the pit is a plate with graham crackers, marshmallows, and chocolate","Taking advantage of the wonderful weather for a sweet treat",""],["12-13",1,"#180808","A cat with light blue eyes sitting on a lap looking off camera with a paw extended close to the lens","you won't believe what she just saw.",""],["12-14",1,"#e8e8e8","several clovers growing through some marble chips on the ground. The largest clover in the foreground has a droplet of water on it","Even through the stones, life finds a way",""],["12-15",1,"#080808","a labrador dog with a banana peel on his head. It is split three ways with part of the peel over each ear and the third part over his snoot","It's banana lord!",""],["12-16",1,"#686868","A picture of David holding a stocking filled with candy and toiletries. Next to him is a rainbow bag filled with more stockings.","We donated even more stockings this year to our local LGBTQ+ youth housing program. They recently added more beds and love that people stepped up to help with gifts and donations!","ec"],["12-17",0.5625,"#b8c8b8","a hand with a wolf paw tattoo holding a mug that says \"Life is better with a furry companion\"","We all know that it's true.",""],["12-18",0.75,"#080818","A christmas tree with presents beneath it. The tree is lit and has baubles and stuffed animals on it.","I dunno when I last had a tree, but we decorated it this year with some stuffed animals and that makes it better.",""],["12-19",1.3333,"#b88828","a railing on stairs with stockings hanging from it, each decorated. On the landing is a decorated tree. Below the stairwell is a dog sleeping","Got some stockings up! First year doing these for me, so I made them for my partners and friends including their respective paw prints.",""],["12-20",1,"#9848a8","a grey and white puppy on a purple leash with their snoot right under the camera lens","I am dead, and this puppy has killed me.",""],["12-21",1,"#282828","shirt that has shelves of books colored as a rainbow from top to bottom with dark blue cats on each shelf","I'm loving this new shirt.",""],["12-22",0.75,"#080808","Red water bottle with black and white dogs on the bottle. In the background is a dog and a cat facing the camera.","Shooshy got me this adorable water bottle made of puppies 🐶",""],["12-23",1,"#d8c8a8","A plant sign that says \"Hi there! Friends call me Beautiful Home Decor. My ull name is Houseplant\"","At least you know who are are.",""],["12-24",1,"#686858","a back yard behind a glass door with holiday decorations stuck to it including foxes and bears and snowflakes and a menorah","It's definitely not gonna be a white Christmas here...",""],["12-25",1,"#080808","a cat lying upside down wedged between packing materials in a closet","She comff.",""],["12-26",1.7778,"#080808","five people with dyed hair and masks standing in front of a mural of Bowser holding a flaming drink","We got takeout from a place called Bao's Castle today",""],["12-27",1.7778,"#d8d8d8","view of a partially cloudy sky over a subdivision as shot from the top of a hill","A hill is a pretty big deal where I live.",""],["12-28",1.7778,"#180808","a collection of dice of various type and color and design","dice. Dice. DICE!",""],["12-29",1.7778,"#080808","cat sitting on a desk next to a printer and microphone and some papers and CDs","This was waiting for me when I got to my desk before dawn this morning.",""],["12-30",1.7778,"#181818","a cat sitting on a concrete pipe in the foreground with an under construction overpass with more concrete pipes in the background","Follow me for your quest.",""],["12-31",1,"#582838","a cat sitting in a blue basket looking at the camera with their tongue out","Last day of the year goes out with a mlem. Happy New Year yall!",""]]}</script>
+<script type="module">
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+const SHORT_MONTHS = MONTHS.map(name => name.slice(0, 3));
+const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+const TARGET_ROW_HEIGHT = 300;          // rows settle near this; wide photos push shorter
+const TARGET_ROW_HEIGHT_NARROW = 220;   // phones: shorter rows fit more of the year on screen
+const GAP = 12;                         // keep in sync with --gap above
+const STORAGE_KEY = 'daily-photo-gallery:view';
+
+const gallery = document.querySelector('#gallery');
+const viewButtons = [...document.querySelectorAll('.views button')];
+const lightbox = document.querySelector('#lightbox');
+const lbImage = document.querySelector('#lb-image');
+const lbDate = document.querySelector('#lb-date');
+const lbCaption = document.querySelector('#lb-caption');
+const lbCw = document.querySelector('#lb-cw');
+
+let view = localStorage.getItem(STORAGE_KEY) === 'calendar' ? 'calendar' : 'rows';
+let lightboxIndex = -1;
+let lastFocused = null;
+
+/* ---------- data ---------- */
+
+// The build inlines photos as [id, ratio, color, alt, caption, cw]
+const { year, photos: rawPhotos } = window.__GALLERY__;
+
+const data = {
+  year,
+  photos: rawPhotos.map(([id, ratio, color, alt, caption, cw]) => {
+    const [month, day] = id.split('-').map(Number);
+    return {
+      id, month, day, ratio, color,
+      alt: alt || '',
+      caption: caption || '',
+      cw: cw || '',
+      thumb: `img/thumb/${id}.webp`,
+      tile: `img/tile/${id}.webp`,
+      full: `img/full/${id}.webp`
+    };
+  })
+};
+
+function daysInMonth(year, month) {
+  return new Date(year, month, 0).getDate();
+}
+
+function formatDate(photo) {
+  return `${MONTHS[photo.month - 1]} ${photo.day}, ${data.year}`;
+}
+
+/**
+ * Real alt text from the original post when there is some, otherwise the date
+ */
+function altFor(photo) {
+  return photo.alt || `Photo from ${formatDate(photo)}`;
+}
+
+/* ---------- tiles ---------- */
+
+function makeTile(photo, index, { width, height, showDay, src = photo.thumb }) {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'tile';
+  button.dataset.index = String(index);
+  button.style.background = photo.color;
+  if (width) button.style.width = `${width}px`;
+  if (height) button.style.height = `${height}px`;
+  button.setAttribute('aria-label', `Open ${formatDate(photo)}`);
+
+  const img = document.createElement('img');
+  img.src = src;
+  img.alt = altFor(photo);
+  img.loading = 'lazy';
+  img.decoding = 'async';
+  if (img.complete) img.classList.add('loaded');
+  else img.addEventListener('load', () => img.classList.add('loaded'), { once: true });
+  button.append(img);
+
+  if (showDay) {
+    const mark = document.createElement('span');
+    mark.className = 'daymark';
+    mark.textContent = showDay === 'full'
+      ? `${SHORT_MONTHS[photo.month - 1]} ${photo.day}`
+      : String(photo.day);
+    button.append(mark);
+  }
+  return button;
+}
+
+function monthHeading(month, variant) {
+  const header = document.createElement('div');
+  header.className = variant ? `month-heading ${variant}` : 'month-heading';
+  const h2 = document.createElement('h2');
+  h2.textContent = MONTHS[month - 1];
+  header.append(h2);
+  return header;
+}
+
+/* ---------- justified rows ---------- */
+
+/**
+ * Fills rows so each one spans the container exactly. After adding a photo we
+ * check whether the row with it or without it lands closer to the target
+ * height, and close whichever wins — a plain "break on overflow" loop leaves
+ * squat rows whenever a panorama lands next to a portrait on a narrow screen.
+ * Returns [{ items, height, widths }] with widths already rounded so they sum
+ * to the container width.
+ */
+function buildRows(photos, containerWidth) {
+  const target = containerWidth < 600 ? TARGET_ROW_HEIGHT_NARROW : TARGET_ROW_HEIGHT;
+  const rows = [];
+  let current = [];
+  let ratioSum = 0;
+
+  const heightFor = (count, ratios) => (containerWidth - GAP * (count - 1)) / ratios;
+
+  const close = (items, ratios) => {
+    const height = heightFor(items.length, ratios);
+    rows.push({ items, height: Math.round(height), ratios });
+  };
+
+  for (const photo of photos) {
+    const withPhoto = heightFor(current.length + 1, ratioSum + photo.ratio);
+
+    if (withPhoto < target && current.length) {
+      const without = heightFor(current.length, ratioSum);
+      if (Math.abs(without - target) < Math.abs(withPhoto - target)) {
+        close(current, ratioSum);
+        current = [photo];
+        ratioSum = photo.ratio;
+        continue;
+      }
+      close([...current, photo], ratioSum + photo.ratio);
+      current = [];
+      ratioSum = 0;
+      continue;
+    }
+
+    current.push(photo);
+    ratioSum += photo.ratio;
+    if (withPhoto < target) {
+      close(current, ratioSum);
+      current = [];
+      ratioSum = 0;
+    }
+  }
+
+  if (current.length) {
+    // A short final row keeps the target height rather than blowing photos up. Must still fit the container.
+    rows.push({
+      items: current,
+      height: Math.round(Math.min(target, heightFor(current.length, ratioSum))),
+      ratios: ratioSum,
+      partial: true
+    });
+  }
+
+  // Round widths cumulatively so rounding error never accumulates: a full row ends flush with the container.
+  for (const row of rows) {
+    const available = containerWidth - GAP * (row.items.length - 1);
+    const scale = row.partial ? row.height : available / row.ratios;
+    let edge = 0;
+    row.widths = row.items.map((photo, index) => {
+      const next = Math.round((edge + photo.ratio) * scale);
+      const width = next - Math.round(edge * scale);
+      edge += photo.ratio;
+      return index === row.items.length - 1 && !row.partial
+        ? available - Math.round((edge - photo.ratio) * scale)
+        : width;
+    });
+  }
+  return rows;
+}
+
+// clientWidth includes padding, so measure the actual content box.
+function contentWidth(element) {
+  const style = getComputedStyle(element);
+  return element.clientWidth
+    - parseFloat(style.paddingLeft)
+    - parseFloat(style.paddingRight);
+}
+
+function renderRows(indexOf) {
+  const fragment = document.createDocumentFragment();
+  const containerWidth = Math.floor(contentWidth(gallery));
+
+  for (let month = 1; month <= 12; month++) {
+    const photos = data.photos.filter(photo => photo.month === month);
+    if (!photos.length) continue;
+
+    fragment.append(monthHeading(month));
+
+    for (const row of buildRows(photos, containerWidth)) {
+      const element = document.createElement('div');
+      element.className = 'row';
+      row.items.forEach((photo, index) => {
+        element.append(makeTile(photo, indexOf.get(photo.id), {
+          width: row.widths[index],
+          height: row.height,
+          showDay: 'full'
+        }));
+      });
+      fragment.append(element);
+    }
+  }
+  return fragment;
+}
+
+/* ---------- calendar ---------- */
+
+function renderCalendar(indexOf) {
+  const fragment = document.createDocumentFragment();
+  const byId = new Map(data.photos.map(photo => [photo.id, photo]));
+  const grid = document.createElement('div');
+  grid.className = 'calendar';
+
+  for (let month = 1; month <= 12; month++) {
+    const total = daysInMonth(data.year, month);
+
+    const section = document.createElement('section');
+    section.className = 'calendar-month';
+    section.append(monthHeading(month, 'compact'));
+
+    const sheet = document.createElement('div');
+    sheet.className = 'sheet';
+
+    const weekdays = document.createElement('div');
+    weekdays.className = 'weekdays';
+    weekdays.setAttribute('aria-hidden', 'true');
+    for (const label of WEEKDAYS) {
+      const span = document.createElement('span');
+      span.textContent = label;
+      weekdays.append(span);
+    }
+    sheet.append(weekdays);
+
+    const days = document.createElement('div');
+    days.className = 'days';
+
+    const blank = () => {
+      const cell = document.createElement('div');
+      cell.className = 'cell blank';
+      cell.setAttribute('aria-hidden', 'true');
+      return cell;
+    };
+
+    const offset = new Date(data.year, month - 1, 1).getDay();
+    for (let i = 0; i < offset; i++) days.append(blank());
+
+    for (let day = 1; day <= total; day++) {
+      const photo = byId.get(`${month}-${day}`);
+      if (photo) {
+        const tile = makeTile(photo, indexOf.get(photo.id), {
+          showDay: 'day',
+          src: photo.tile
+        });
+        tile.classList.add('cell');
+        days.append(tile);
+      } else {
+        const cell = document.createElement('div');
+        cell.className = 'cell missing';
+        const mark = document.createElement('span');
+        mark.className = 'daymark';
+        mark.textContent = String(day);
+        cell.append(mark);
+        cell.title = `No photo for ${MONTHS[month - 1]} ${day}`;
+        days.append(cell);
+      }
+    }
+
+    // Pad the last week so every month sheet is a clean rectangle.
+    while (days.children.length % 7 !== 0) days.append(blank());
+
+    sheet.append(days);
+    section.append(sheet);
+    grid.append(section);
+  }
+
+  fragment.append(grid);
+  return fragment;
+}
+
+/* ---------- render ---------- */
+
+function render() {
+  const indexOf = new Map(data.photos.map((photo, index) => [photo.id, index]));
+  gallery.replaceChildren(view === 'calendar' ? renderCalendar(indexOf) : renderRows(indexOf));
+  for (const button of viewButtons) {
+    button.setAttribute('aria-selected', String(button.dataset.view === view));
+  }
+}
+
+function setView(next) {
+  if (next === view) return;
+  view = next;
+  localStorage.setItem(STORAGE_KEY, view);
+  render();
+}
+
+/* ---------- lightbox ---------- */
+
+function openLightbox(index) {
+  if (index < 0 || index >= data.photos.length) return;
+  lastFocused = document.activeElement;
+  lightboxIndex = index;
+  showLightboxPhoto();
+  lightbox.hidden = false;
+  document.body.style.overflow = 'hidden';
+  lightbox.querySelector('.lb-close').focus();
+}
+
+function showLightboxPhoto() {
+  const photo = data.photos[lightboxIndex];
+  lbImage.src = photo.full;
+  lbImage.alt = altFor(photo);
+  lbDate.textContent = formatDate(photo);
+  lbCaption.textContent = photo.caption;
+  lbCw.textContent = photo.cw;
+  lbCw.hidden = !photo.cw;
+
+  // Warm the neighbours so arrow keys feel instant.
+  for (const offset of [-1, 1]) {
+    const neighbour = data.photos[lightboxIndex + offset];
+    if (neighbour) new Image().src = neighbour.full;
+  }
+}
+
+function stepLightbox(delta) {
+  const next = lightboxIndex + delta;
+  if (next < 0 || next >= data.photos.length) return;
+  lightboxIndex = next;
+  showLightboxPhoto();
+}
+
+function closeLightbox() {
+  lightbox.hidden = true;
+  lbImage.removeAttribute('src');
+  document.body.style.overflow = '';
+  lightboxIndex = -1;
+  if (lastFocused instanceof HTMLElement) lastFocused.focus();
+}
+
+/* ---------- events ---------- */
+
+gallery.addEventListener('click', event => {
+  const tile = event.target.closest('.tile');
+  if (tile) openLightbox(Number(tile.dataset.index));
+});
+
+for (const button of viewButtons) {
+  button.addEventListener('click', () => setView(button.dataset.view));
+}
+
+lightbox.addEventListener('click', event => {
+  const action = event.target.closest('[data-action]')?.dataset.action;
+  if (action === 'close') closeLightbox();
+  else if (action === 'prev') stepLightbox(-1);
+  else if (action === 'next') stepLightbox(1);
+  else if (event.target === lightbox) closeLightbox();  // click the backdrop
+});
+
+document.addEventListener('keydown', event => {
+  if (lightbox.hidden) return;
+  if (event.key === 'Escape') closeLightbox();
+  else if (event.key === 'ArrowLeft') stepLightbox(-1);
+  else if (event.key === 'ArrowRight') stepLightbox(1);
+  else return;
+  event.preventDefault();
+});
+
+let resizeTimer;
+let lastWidth = window.innerWidth;
+window.addEventListener('resize', () => {
+  if (view !== 'rows' || window.innerWidth === lastWidth) return;
+  lastWidth = window.innerWidth;
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(render, 150);
+});
+
+/* ---------- boot ---------- */
+
+function init() {
+  if (!data.photos.length) {
+    gallery.innerHTML = '<p class="status">No photos.</p>';
+    return;
+  }
+
+  render();
+}
+
+init();</script>
+</body>
+</html>
