@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>david's Inktober 2026</title>
+<link rel="icon" href="/favicon-32x32.jpg" sizes="32x32">
+<link rel="icon" href="/favicon-192x192.jpg" sizes="192x192">
+<link rel="apple-touch-icon" href="/apple-touch-icon.jpg">
+<meta name="description" content="david's Inktober 2026: one Pokémon per prompt, every day of October">
+<style>
+:root {
+  color-scheme: dark light;
+  --bg: #0d0d0f;
+  --bg-raised: #17171b;
+  --fg: #f2f2f4;
+  --fg-dim: #9a9aa4;
+  --line: #2a2a31;
+  --accent: #f2f2f4;
+  --gap: 12px;
+  --radius: 4px;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg: #fbfbfa;
+    --bg-raised: #ffffff;
+    --fg: #16161a;
+    --fg-dim: #6d6d78;
+    --line: #e2e2e0;
+    --accent: #16161a;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0 auto;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  max-width: 1600px;
+  padding: 16px 24px;
+}
+
+header { margin: 0 auto 24px; }
+
+.home { color: var(--fg-dim); text-decoration: none; }
+.home:hover { color: var(--fg); text-decoration: underline; }
+
+header h1 {
+  margin: 12px 0 0;
+  font-size: clamp(24px, 6vw, 48px);
+  line-height: 1;
+}
+
+.subtitle { margin: 8px 0 0; color: var(--fg-dim); max-width: 60ch; }
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: var(--gap);
+}
+
+.card {
+  display: grid;
+  gap: 2px;
+  padding: var(--gap);
+  background: var(--bg-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: inherit;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+  transition: border-color 0.25s, transform 0.25s;
+}
+
+.card:hover,
+.card:focus-visible { border-color: var(--accent); transform: translateY(-2px); }
+.card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.card img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: var(--radius);
+  margin-bottom: var(--gap);
+  background: var(--bg);
+}
+
+.card-word { font-weight: 600; }
+.card-meta { color: var(--fg-dim); font-size: 14px; }
+
+.lightbox {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.92);
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  z-index: 10;
+}
+
+.lightbox[hidden] { display: none; }
+
+.lb-figure { margin: 0; display: grid; gap: 12px; justify-items: center; max-height: 100%; }
+
+.lb-figure img {
+  max-width: min(92vw, 1400px);
+  max-height: 78vh;
+  border-radius: var(--radius);
+}
+
+.lb-figure figcaption { color: #f2f2f4; text-align: center; display: grid; gap: 4px; }
+.lb-prompt { font-size: 20px; font-weight: 600; }
+.lb-sub { color: #9a9aa4; }
+
+.lb-close, .lb-nav {
+  position: fixed;
+  appearance: none;
+  border: 1px solid rgba(242, 242, 244, 0.25);
+  background: rgba(0, 0, 0, 0.5);
+  color: #f2f2f4;
+  border-radius: 999px;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.lb-close { top: 16px; right: 16px; width: 44px; height: 44px; font-size: 28px; }
+.lb-nav { top: 50%; transform: translateY(-50%); width: 44px; height: 64px; font-size: 32px; }
+.lb-prev { left: 16px; }
+.lb-next { right: 16px; }
+
+.lb-close:focus-visible, .lb-nav:focus-visible { outline: 2px solid #f2f2f4; outline-offset: 2px; }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<header>
+  <a class="home" href="../">← All Inktober years</a>
+  <h1>david's Inktober 2026</h1>
+  <p class="subtitle">One drawing a day for October, every prompt answered with a Pokémon that fit the word.</p>
+</header>
+
+<main class="grid" id="grid"></main>
+
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Drawing" hidden>
+  <button type="button" class="lb-close" data-action="close" aria-label="Close">&times;</button>
+  <button type="button" class="lb-nav lb-prev" data-action="prev" aria-label="Previous drawing">&#8249;</button>
+  <button type="button" class="lb-nav lb-next" data-action="next" aria-label="Next drawing">&#8250;</button>
+  <figure class="lb-figure">
+    <img id="lb-image" alt="">
+    <figcaption>
+      <span class="lb-prompt" id="lb-prompt"></span>
+      <span class="lb-sub" id="lb-sub"></span>
+    </figcaption>
+  </figure>
+</div>
+
+<script type="module">
+const DRAWINGS = [
+  [1, "Apple", "Applin", "Applin, a round red apple with a pale green leaf for a head and two wide eyes peeking over the top, resting in grass at the foot of a tree."],
+  [2, "Relic", "Relicanth", "Relicanth, a heavy teal and grey prehistoric fish with a cream-colored head, drifting over rocks in deep blue water as bubbles rise around it."],
+  [3, "Miniature", "Joltik", "Joltik, a tiny yellow spiky bug Pokémon, almost lost in the middle of a pattern of oversized orange and green autumn leaves."],
+  [4, "Cactus", "Cacnea and Maractus", "Maractus and Cacnea, two green cactus Pokémon planted in terracotta pots on a table. Maractus holds up its pink flowered arms while the small round Cacnea leans out of the smaller pot."],
+  [5, "Smack", "Hariyama", "Hariyama, a navy blue sumo wrestler Pokémon with enormous orange palms, swinging an open-handed slap on a sunny green hill."],
+  [6, "Ogre", "Emboar", "Emboar, a big boar Pokémon with a beard of orange flame and a gold-patterned black tunic, flexing both arms in a purple and red room."],
+  [7, "Panic", "Whismur", "Whismur, a pale purple Pokémon with huge yellow ears, eyes screwed shut into X shapes and mouth open mid-cry, crowded in by a blur of other Whismur."],
+  [8, "Stinky", "Stunky and Garbodor", "Stunky, a purple and cream skunk Pokémon, raising its tail in front of Garbodor, a slouching green trash-bag Pokémon, against a brick wall."],
+  [9, "Ram", "Rampardos", "Rampardos, a grey dinosaur Pokémon with a blue domed skull and white spikes, charging head-down across a burst of red speed lines."],
+  [10, "Mystical", "Mew", "Mew, a small pink feline Pokémon with a long tail, floating curled up inside a soap bubble in deep blue water."],
+  [11, "Rescue", "Chansey", "Chansey, a pink egg-shaped Pokémon smiling with its white egg tucked in its belly pouch, in front of soft multicolored bokeh circles."],
+  [12, "Toss", "Throh", "Throh, a dark red judo Pokémon in a white gi and black belt, crouched low with both hands open, ready to throw someone."],
+  [13, "Flimsy", "Magikarp", "Magikarp, an orange-red fish Pokémon with a gaping mouth and droopy whiskers, flopping helplessly in shallow water, painted in loose brushstrokes."],
+  [14, "Lady", "Lilligant", "Lilligant, a flower Pokémon whose leaves fall like a yellow-green ballgown and whose pink petals sit like a crown, standing beside a tree under a blue sky."],
+  [15, "Hooray", "Plusle and Minun", "Plusle and Minun, two cheerful yellow mouse Pokémon with plus and minus ear markings, cheering with red and blue pompoms under a shower of confetti."],
+  [16, "Gangly", "Gengar", "Gengar, a round purple ghost Pokémon with a wide toothy grin and red eyes, grinning out of a glitched, smeared purple background."],
+  [17, "Contraption", "Klinklang", "Klinklang, a Pokémon made of three interlocking steel gears with a red cross-shaped gear and a spinning arrow ring, against a blue corrugated background."],
+  [18, "Flightless", "Dodrio", "Dodrio, a brown three-headed bird Pokémon on long legs, each head wearing a different expression, with tiny useless pink wings at its back."],
+  [19, "Confused", "Psyduck", "Psyduck, a yellow duck Pokémon holding its head with both hands and staring blankly, surrounded by floating purple and blue question marks."],
+  [20, "Lounge", "Slaking", "Slaking, a big brown and cream sloth-like Pokémon, slouched back on the grass with a bored expression, scratching its head among the trees."],
+  [21, "Hero", "Hawlucha", "Hawlucha, a green and red luchador bird Pokémon with a white chest, leaping with its wings spread and beak open in the ropes of a wrestling ring."],
+  [22, "Beacon", "Ampharos", "Ampharos, a yellow sheep Pokémon with black-striped ears and tail, curled up as the red orb on its tail flares with light against lightning bolts."],
+  [23, "Dapper", "Mr. Rime", "Mr. Rime, a tall mime Pokémon in a dark hat with a curly mustache marking on its belly, tipping an icy cane in front of a red brick wall."],
+  [24, "Bake", "Fidough and Dachsbun", "Dachsbun, a baked brown dog Pokémon, standing over Fidough, a small pale dough puppy, the two of them on a large white plate in a sunny kitchen."],
+  [25, "Fracture", "Fraxure", "Fraxure, a grey dragon Pokémon with green scales and long white tusks, standing on cracked dry ground beside a river."],
+  [26, "Zip", "Banette", "Banette, a grey puppet Pokémon with a zipper for a mouth and a jagged zipper pull hanging from one hand, hovering against a starry night sky."],
+  [27, "Dumb", "Slowpoke", "Slowpoke, a pink Pokémon lying flat on a beach with a vacant open-mouthed stare, a Shellder sitting in the sand behind it."],
+  [28, "Trophy", "Gholdengo", "Gholdengo, a slim golden Pokémon made of coins, posing on a wooden pedestal like an award statue, surrounded by sparkling gems."],
+  [29, "Tusk", "Donphan", "Donphan, a grey elephant Pokémon with a thick black tire-like tread around its body and long white tusks, standing in a sunny flower-dotted field."],
+  [30, "Cookie", "Munchlax", "Munchlax, a chubby blue-green Pokémon with its eyes closed in delight, eating chocolate chip cookies on a red checkered picnic blanket."],
+  [31, "Flex", "Machamp", "Machamp, a blue four-armed Pokémon in black swim trunks, flexing all four arms at once on a sunny beach."]
+];
+
+const grid = document.getElementById('grid');
+const lightbox = document.getElementById('lightbox');
+const lbImage = document.getElementById('lb-image');
+const lbPrompt = document.getElementById('lb-prompt');
+const lbSub = document.getElementById('lb-sub');
+let current = -1;
+
+for (const [index, [day, word, who, alt]] of DRAWINGS.entries()) {
+  const card = document.createElement('button');
+  card.type = 'button';
+  card.className = 'card';
+  card.dataset.day = day;
+  card.innerHTML = `
+    <img src="img/tile/${day}.webp" alt="${alt.replace(/"/g, '&quot;')}" loading="lazy" decoding="async" width="200" height="200">
+    <span class="card-word">${word}</span>
+    <span class="card-meta">Day ${day} · ${who}</span>`;
+  card.addEventListener('click', () => open(index));
+  grid.append(card);
+}
+
+function open(index) {
+  current = (index + DRAWINGS.length) % DRAWINGS.length;
+  const [day, word, who, alt] = DRAWINGS[current];
+  lbImage.src = `img/full/${day}.webp`;
+  lbImage.alt = alt;
+  lbPrompt.textContent = word;
+  lbSub.textContent = `Day ${day} · ${who}`;
+  lightbox.hidden = false;
+  document.body.style.overflow = 'hidden';
+  lightbox.querySelector('.lb-close').focus();
+}
+
+function close() {
+  lightbox.hidden = true;
+  document.body.style.overflow = '';
+  const card = grid.querySelector(`.card[data-day="${DRAWINGS[current][0]}"]`);
+  if (card) card.focus();
+}
+
+lightbox.addEventListener('click', event => {
+  const action = event.target.closest('[data-action]')?.dataset.action;
+  if (action === 'close' || event.target === lightbox) close();
+  else if (action === 'prev') open(current - 1);
+  else if (action === 'next') open(current + 1);
+});
+
+document.addEventListener('keydown', event => {
+  if (lightbox.hidden) return;
+  if (event.key === 'Escape') close();
+  else if (event.key === 'ArrowLeft') open(current - 1);
+  else if (event.key === 'ArrowRight') open(current + 1);
+});
+</script>
+</body>
+</html>

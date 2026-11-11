@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>david's Inktober</title>
+<link rel="icon" href="/favicon-32x32.jpg" sizes="32x32">
+<link rel="icon" href="/favicon-192x192.jpg" sizes="192x192">
+<link rel="apple-touch-icon" href="/apple-touch-icon.jpg">
+<meta name="description" content="david's Inktober drawings: one Pokémon per prompt">
+<style>
+:root {
+  color-scheme: dark light;
+  --bg: #0d0d0f;
+  --bg-raised: #17171b;
+  --fg: #f2f2f4;
+  --fg-dim: #9a9aa4;
+  --line: #2a2a31;
+  --accent: #f2f2f4;
+  --gap: 12px;
+  --radius: 4px;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg: #fbfbfa;
+    --bg-raised: #ffffff;
+    --fg: #16161a;
+    --fg-dim: #6d6d78;
+    --line: #e2e2e0;
+    --accent: #16161a;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0 auto;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  max-width: 1600px;
+  padding: 16px 24px;
+}
+
+header { margin: 0 auto 24px; }
+
+header h1 {
+  margin: 12px 0 0;
+  font-size: clamp(24px, 6vw, 48px);
+  line-height: 1;
+}
+
+.home { color: var(--fg-dim); text-decoration: none; }
+.home:hover { color: var(--fg); text-decoration: underline; }
+
+.subtitle { margin: 8px 0 0; color: var(--fg-dim); max-width: 60ch; }
+
+.cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--gap);
+}
+
+@media (min-width: 620px) {
+  .cards { grid-template-columns: repeat(2, 1fr); }
+}
+
+.card {
+  display: grid;
+  grid-template-rows: auto auto auto;
+  gap: 2px;
+  padding: var(--gap);
+  background: var(--bg-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: inherit;
+  text-decoration: none;
+  transition: border-color 0.25s, transform 0.25s;
+}
+
+.card:hover,
+.card:focus-visible { border-color: var(--accent); transform: translateY(-2px); }
+.card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.card img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: var(--radius);
+  margin-bottom: var(--gap);
+  background: var(--bg);
+}
+
+.card-label { font-size: 24px; font-weight: 600; }
+.card-count { color: var(--fg-dim); }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<header>
+  <a class="home" href="../">← All galleries</a>
+  <h1>david's Inktober</h1>
+  <p class="subtitle">Every October I draw one piece a day for the official Inktober prompt list. Pick a year.</p>
+</header>
+
+<main class="cards">
+  <a class="card" href="2026/">
+    <img src="2026/img/thumb/16.webp" alt="" decoding="async">
+    <span class="card-label">2026</span>
+    <span class="card-count">31 drawings · a Pokémon for every prompt</span>
+  </a>
+</main>
+</body>
+</html>
