@@ -93,6 +93,11 @@ header h1 {
 }
 
 .card-word { font-weight: 600; }
+
+.playlist-link, .lb-video { color: inherit; }
+.playlist-link:hover, .lb-video:hover { text-decoration: none; }
+
+.lb-video { display: inline-block; margin-top: 4px; }
 .card-meta { color: var(--fg-dim); font-size: 14px; }
 
 .lightbox {
@@ -144,7 +149,7 @@ header h1 {
 <header>
   <a class="home" href="../">← All Inktober years</a>
   <h1>david's Inktober 2026</h1>
-  <p class="subtitle">One drawing a day for October, every prompt answered with a Pokémon that fit the word.</p>
+  <p class="subtitle">One drawing a day for October 2026, every prompt answered with a Pokémon that fit the word. Each one has a <a class="playlist-link" href="https://www.youtube.com/playlist?list=PLdbzyXche8nc">YouTube Short</a> showing my process too.</p>
 </header>
 
 <main class="grid" id="grid"></main>
@@ -158,43 +163,44 @@ header h1 {
     <figcaption>
       <span class="lb-prompt" id="lb-prompt"></span>
       <span class="lb-sub" id="lb-sub"></span>
+      <a class="lb-video" id="lb-video" href="#" target="_blank" rel="noopener">Watch the drawing process on YouTube</a>
     </figcaption>
   </figure>
 </div>
 
 <script type="module">
 const DRAWINGS = [
-  [1, "Apple", "Applin", "Applin, a round red apple with a pale green leaf for a head and two wide eyes peeking over the top, resting in grass at the foot of a tree."],
-  [2, "Relic", "Relicanth", "Relicanth, a heavy teal and grey prehistoric fish with a cream-colored head, drifting over rocks in deep blue water as bubbles rise around it."],
-  [3, "Miniature", "Joltik", "Joltik, a tiny yellow spiky bug Pokémon, almost lost in the middle of a pattern of oversized orange and green autumn leaves."],
-  [4, "Cactus", "Cacnea and Maractus", "Maractus and Cacnea, two green cactus Pokémon planted in terracotta pots on a table. Maractus holds up its pink flowered arms while the small round Cacnea leans out of the smaller pot."],
-  [5, "Smack", "Hariyama", "Hariyama, a navy blue sumo wrestler Pokémon with enormous orange palms, swinging an open-handed slap on a sunny green hill."],
-  [6, "Ogre", "Emboar", "Emboar, a big boar Pokémon with a beard of orange flame and a gold-patterned black tunic, flexing both arms in a purple and red room."],
-  [7, "Panic", "Whismur", "Whismur, a pale purple Pokémon with huge yellow ears, eyes screwed shut into X shapes and mouth open mid-cry, crowded in by a blur of other Whismur."],
-  [8, "Stinky", "Stunky and Garbodor", "Stunky, a purple and cream skunk Pokémon, raising its tail in front of Garbodor, a slouching green trash-bag Pokémon, against a brick wall."],
-  [9, "Ram", "Rampardos", "Rampardos, a grey dinosaur Pokémon with a blue domed skull and white spikes, charging head-down across a burst of red speed lines."],
-  [10, "Mystical", "Mew", "Mew, a small pink feline Pokémon with a long tail, floating curled up inside a soap bubble in deep blue water."],
-  [11, "Rescue", "Chansey", "Chansey, a pink egg-shaped Pokémon smiling with its white egg tucked in its belly pouch, in front of soft multicolored bokeh circles."],
-  [12, "Toss", "Throh", "Throh, a dark red judo Pokémon in a white gi and black belt, crouched low with both hands open, ready to throw someone."],
-  [13, "Flimsy", "Magikarp", "Magikarp, an orange-red fish Pokémon with a gaping mouth and droopy whiskers, flopping helplessly in shallow water, painted in loose brushstrokes."],
-  [14, "Lady", "Lilligant", "Lilligant, a flower Pokémon whose leaves fall like a yellow-green ballgown and whose pink petals sit like a crown, standing beside a tree under a blue sky."],
-  [15, "Hooray", "Plusle and Minun", "Plusle and Minun, two cheerful yellow mouse Pokémon with plus and minus ear markings, cheering with red and blue pompoms under a shower of confetti."],
-  [16, "Gangly", "Gengar", "Gengar, a round purple ghost Pokémon with a wide toothy grin and red eyes, grinning out of a glitched, smeared purple background."],
-  [17, "Contraption", "Klinklang", "Klinklang, a Pokémon made of three interlocking steel gears with a red cross-shaped gear and a spinning arrow ring, against a blue corrugated background."],
-  [18, "Flightless", "Dodrio", "Dodrio, a brown three-headed bird Pokémon on long legs, each head wearing a different expression, with tiny useless pink wings at its back."],
-  [19, "Confused", "Psyduck", "Psyduck, a yellow duck Pokémon holding its head with both hands and staring blankly, surrounded by floating purple and blue question marks."],
-  [20, "Lounge", "Slaking", "Slaking, a big brown and cream sloth-like Pokémon, slouched back on the grass with a bored expression, scratching its head among the trees."],
-  [21, "Hero", "Hawlucha", "Hawlucha, a green and red luchador bird Pokémon with a white chest, leaping with its wings spread and beak open in the ropes of a wrestling ring."],
-  [22, "Beacon", "Ampharos", "Ampharos, a yellow sheep Pokémon with black-striped ears and tail, curled up as the red orb on its tail flares with light against lightning bolts."],
-  [23, "Dapper", "Mr. Rime", "Mr. Rime, a tall mime Pokémon in a dark hat with a curly mustache marking on its belly, tipping an icy cane in front of a red brick wall."],
-  [24, "Bake", "Fidough and Dachsbun", "Dachsbun, a baked brown dog Pokémon, standing over Fidough, a small pale dough puppy, the two of them on a large white plate in a sunny kitchen."],
-  [25, "Fracture", "Fraxure", "Fraxure, a grey dragon Pokémon with green scales and long white tusks, standing on cracked dry ground beside a river."],
-  [26, "Zip", "Banette", "Banette, a grey puppet Pokémon with a zipper for a mouth and a jagged zipper pull hanging from one hand, hovering against a starry night sky."],
-  [27, "Dumb", "Slowpoke", "Slowpoke, a pink Pokémon lying flat on a beach with a vacant open-mouthed stare, a Shellder sitting in the sand behind it."],
-  [28, "Trophy", "Gholdengo", "Gholdengo, a slim golden Pokémon made of coins, posing on a wooden pedestal like an award statue, surrounded by sparkling gems."],
-  [29, "Tusk", "Donphan", "Donphan, a grey elephant Pokémon with a thick black tire-like tread around its body and long white tusks, standing in a sunny flower-dotted field."],
-  [30, "Cookie", "Munchlax", "Munchlax, a chubby blue-green Pokémon with its eyes closed in delight, eating chocolate chip cookies on a red checkered picnic blanket."],
-  [31, "Flex", "Machamp", "Machamp, a blue four-armed Pokémon in black swim trunks, flexing all four arms at once on a sunny beach."]
+  [1, "Apple", "Applin", "Applin, a round red apple with a pale green leaf for a head and two wide eyes peeking over the top, resting in grass at the foot of a tree.", "Bl00XP-f59s"],
+  [2, "Relic", "Relicanth", "Relicanth, a heavy teal and grey prehistoric fish with a cream-colored head, drifting over rocks in deep blue water as bubbles rise around it.", "5PPWB_ZSwHk"],
+  [3, "Miniature", "Joltik", "Joltik, a tiny yellow spiky bug Pokémon, almost lost in the middle of a pattern of oversized orange and green autumn leaves.", "77M-WxIN-Og"],
+  [4, "Cactus", "Cacnea and Maractus", "Maractus and Cacnea, two green cactus Pokémon planted in terracotta pots on a table. Maractus holds up its pink flowered arms while the small round Cacnea leans out of the smaller pot.", "ifIvfjdesEc"],
+  [5, "Smack", "Hariyama", "Hariyama, a navy blue sumo wrestler Pokémon with enormous orange palms, swinging an open-handed slap on a sunny green hill.", "LPuWTYrgMqY"],
+  [6, "Ogre", "Emboar", "Emboar, a big boar Pokémon with a beard of orange flame and a gold-patterned black tunic, flexing both arms in a purple and red room.", "DHdVBwZx8_Y"],
+  [7, "Panic", "Whismur", "Whismur, a pale purple Pokémon with huge yellow ears, eyes screwed shut into X shapes and mouth open mid-cry, crowded in by a blur of other Whismur.", "tf-SrA6MNRQ"],
+  [8, "Stinky", "Stunky and Garbodor", "Stunky, a purple and cream skunk Pokémon, raising its tail in front of Garbodor, a slouching green trash-bag Pokémon, against a brick wall.", "jr-w7eQAwQM"],
+  [9, "Ram", "Rampardos", "Rampardos, a grey dinosaur Pokémon with a blue domed skull and white spikes, charging head-down across a burst of red speed lines.", "mhdAkJRhQPU"],
+  [10, "Mystical", "Mew", "Mew, a small pink feline Pokémon with a long tail, floating curled up inside a soap bubble in deep blue water.", "z4hVI2M9FiU"],
+  [11, "Rescue", "Chansey", "Chansey, a pink egg-shaped Pokémon smiling with its white egg tucked in its belly pouch, in front of soft multicolored bokeh circles.", "8KTjd_dRY4Q"],
+  [12, "Toss", "Throh", "Throh, a dark red judo Pokémon in a white gi and black belt, crouched low with both hands open, ready to throw someone.", "hpO0kR4SH60"],
+  [13, "Flimsy", "Magikarp", "Magikarp, an orange-red fish Pokémon with a gaping mouth and droopy whiskers, flopping helplessly in shallow water, painted in loose brushstrokes.", "-NiSQHHSZUw"],
+  [14, "Lady", "Lilligant", "Lilligant, a flower Pokémon whose leaves fall like a yellow-green ballgown and whose pink petals sit like a crown, standing beside a tree under a blue sky.", "Wze1Aia-LAY"],
+  [15, "Hooray", "Plusle and Minun", "Plusle and Minun, two cheerful yellow mouse Pokémon with plus and minus ear markings, cheering with red and blue pompoms under a shower of confetti.", "_DuNcTGdaVI"],
+  [16, "Gangly", "Gengar", "Gengar, a round purple ghost Pokémon with a wide toothy grin and red eyes, grinning out of a glitched, smeared purple background.", "gpaMRMYYS24"],
+  [17, "Contraption", "Klinklang", "Klinklang, a Pokémon made of three interlocking steel gears with a red cross-shaped gear and a spinning arrow ring, against a blue corrugated background.", "4FrkqIKm-1Y"],
+  [18, "Flightless", "Dodrio", "Dodrio, a brown three-headed bird Pokémon on long legs, each head wearing a different expression, with tiny useless pink wings at its back.", "tGuOhL6k_7E"],
+  [19, "Confused", "Psyduck", "Psyduck, a yellow duck Pokémon holding its head with both hands and staring blankly, surrounded by floating purple and blue question marks.", "rLZCEhAlwsE"],
+  [20, "Lounge", "Slaking", "Slaking, a big brown and cream sloth-like Pokémon, slouched back on the grass with a bored expression, scratching its head among the trees.", "yX2dCsBezmI"],
+  [21, "Hero", "Hawlucha", "Hawlucha, a green and red luchador bird Pokémon with a white chest, leaping with its wings spread and beak open in the ropes of a wrestling ring.", "arWyf_KJE2Y"],
+  [22, "Beacon", "Ampharos", "Ampharos, a yellow sheep Pokémon with black-striped ears and tail, curled up as the red orb on its tail flares with light against lightning bolts.", "f0Ov8w8RO1U"],
+  [23, "Dapper", "Mr. Rime", "Mr. Rime, a tall mime Pokémon in a dark hat with a curly mustache marking on its belly, tipping an icy cane in front of a red brick wall.", "aLJdp5J_JuE"],
+  [24, "Bake", "Fidough and Dachsbun", "Dachsbun, a baked brown dog Pokémon, standing over Fidough, a small pale dough puppy, the two of them on a large white plate in a sunny kitchen.", "y705E4_n3Wk"],
+  [25, "Fracture", "Fraxure", "Fraxure, a grey dragon Pokémon with green scales and long white tusks, standing on cracked dry ground beside a river.", "VLVitiBK3aA"],
+  [26, "Zip", "Banette", "Banette, a grey puppet Pokémon with a zipper for a mouth and a jagged zipper pull hanging from one hand, hovering against a starry night sky.", "GO-RPXTE8uM"],
+  [27, "Dumb", "Slowpoke", "Slowpoke, a pink Pokémon lying flat on a beach with a vacant open-mouthed stare, a Shellder sitting in the sand behind it.", "SbmAqx8q03s"],
+  [28, "Trophy", "Gholdengo", "Gholdengo, a slim golden Pokémon made of coins, posing on a wooden pedestal like an award statue, surrounded by sparkling gems.", "d_hb5raYgpM"],
+  [29, "Tusk", "Donphan", "Donphan, a grey elephant Pokémon with a thick black tire-like tread around its body and long white tusks, standing in a sunny flower-dotted field.", "RPa-zoHZ5ms"],
+  [30, "Cookie", "Munchlax", "Munchlax, a chubby blue-green Pokémon with its eyes closed in delight, eating chocolate chip cookies on a red checkered picnic blanket.", "aWrQR3Ey-54"],
+  [31, "Flex", "Machamp", "Machamp, a blue four-armed Pokémon in black swim trunks, flexing all four arms at once on a sunny beach.", "lPeyLqCzCWY"]
 ];
 
 const grid = document.getElementById('grid');
@@ -202,9 +208,10 @@ const lightbox = document.getElementById('lightbox');
 const lbImage = document.getElementById('lb-image');
 const lbPrompt = document.getElementById('lb-prompt');
 const lbSub = document.getElementById('lb-sub');
+const lbVideo = document.getElementById('lb-video');
 let current = -1;
 
-for (const [index, [day, word, who, alt]] of DRAWINGS.entries()) {
+for (const [index, [day, word, who, alt, video]] of DRAWINGS.entries()) {
   const card = document.createElement('button');
   card.type = 'button';
   card.className = 'card';
@@ -219,11 +226,12 @@ for (const [index, [day, word, who, alt]] of DRAWINGS.entries()) {
 
 function open(index) {
   current = (index + DRAWINGS.length) % DRAWINGS.length;
-  const [day, word, who, alt] = DRAWINGS[current];
+  const [day, word, who, alt, video] = DRAWINGS[current];
   lbImage.src = `img/full/${day}.webp`;
   lbImage.alt = alt;
   lbPrompt.textContent = word;
   lbSub.textContent = `Day ${day} · ${who}`;
+  lbVideo.href = `https://www.youtube.com/shorts/${video}`;
   lightbox.hidden = false;
   document.body.style.overflow = 'hidden';
   lightbox.querySelector('.lb-close').focus();
