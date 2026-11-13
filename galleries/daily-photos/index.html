@@ -2,149 +2,343 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self' 'unsafe-inline'; connect-src 'self'; base-uri 'none'; form-action 'none'">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>david's Daily Photo Challenges</title>
 <link rel="icon" href="/favicon-32x32.jpg" sizes="32x32">
 <link rel="icon" href="/favicon-192x192.jpg" sizes="192x192">
 <link rel="apple-touch-icon" href="/apple-touch-icon.jpg">
-<meta name="description" content="david's daily photo challenges">
+<meta name="description" content="One photo a day, for several years running">
 <style>
-:root {
-  color-scheme: dark light;
-  --bg: #0d0d0f;
-  --bg-raised: #17171b;
-  --fg: #f2f2f4;
-  --fg-dim: #9a9aa4;
-  --line: #2a2a31;
-  --accent: #f2f2f4;
-  --gap: 12px;
-  --radius: 4px;
-}
+  :root {
+    color-scheme: light dark;
 
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme="dark"]) {
-    --bg: #fbfbfa;
-    --bg-raised: #ffffff;
-    --fg: #16161a;
-    --fg-dim: #6d6d78;
-    --line: #e2e2e0;
-    --accent: #16161a;
+    --base: #fefefe;
+    --base-dark: #123260;
+    --foreground: #0b254c;
+    --foreground-light: #fefefe;
+    --primary: #1fa6d8;
+    --secondary: #f25d54;
+    --secondary-dark: #c47a7a;
+    --accent: #861d9b;
+    --accent-dark: #5d1470;
+    --gold: #d4af37;
+    --tooltip-bg: #330a0a;
+
+    --pride-black: #000000;
+    --pride-brown: #784f16;
+    --pride-red: #e40303;
+    --pride-orange: #ff8c00;
+    --pride-yellow: #ffed00;
+    --pride-green: #008026;
+    --pride-blue: #004dff;
+    --pride-purple: #750787;
+    --pride-silver: #bcc4c7;
+    --pride-white: #f2f2f2;
+    --pride-light-green: #b7f584;
+
+    --rainbow-red: #ff0000;
+    --rainbow-orange: #ff7f00;
+    --rainbow-yellow: #ffff00;
+    --rainbow-lime: #00ff00;
+    --rainbow-blue: #0000ff;
+    --rainbow-indigo: #4b0082;
+    --rainbow-violet: #8b00ff;
+
+    --text: var(--foreground);
+    --background: var(--base);
+    --surface: var(--base);
+    --text-dim: color-mix(in srgb, var(--text) 68%, var(--background));
+    --link: var(--pride-purple);
+    --link-visited: var(--accent-dark);
+    --link-hover: var(--secondary);
+    --role-primary: var(--primary);
+    --primary-ink: var(--foreground);
+    --role-secondary: var(--secondary);
+    --role-accent: var(--accent);
+    --rule: rgba(11, 37, 76, 0.12);
+
+    --font-serif: Piazzolla, 'Source Serif Pro', 'Iowan Old Style', Palatino, Georgia, serif;
+    --font-sans: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+    --font-system: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+    --text-small: 1rem;
+    --text-medium: clamp(1.125rem, 1.1rem + 0.25vw, 1.25rem);
+    --text-large: clamp(1.75rem, 1.7rem + 0.5vw, 1.875rem);
+    --text-x-large: 2.25rem;
+    --text-xx-large: clamp(4rem, 3.5rem + 2.5vw, 5rem);
+
+    --weight-body: 400;
+    --weight-heading: 600;
+    --weight-strong: 700;
+    --weight-display: 900;
+
+    --leading-body: 1.6;
+    --leading-heading: 1.2;
+
+    --space-30: clamp(1.5rem, 5vw, 2rem);
+    --space-40: clamp(1.8rem, 1.8rem + ((1vw - 0.48rem) * 2.885), 3rem);
+    --space-50: clamp(2.5rem, 8vw, 4.5rem);
+    --space-60: clamp(3.75rem, 10vw, 7rem);
+    --space-70: clamp(5rem, 5.25rem + ((1vw - 0.48rem) * 9.096), 8rem);
+    --space-80: clamp(7rem, 14vw, 11rem);
+    --block-gap: 1.5rem;
+    --page-pad: var(--space-30);
+
+    --content-width: 44rem;
+    --wide-width: 64rem;
+
+    --radius-button: 10px;
+    --radius-tag: 0;
+
+    --shadow-primary: -10px 10px var(--role-accent);
+    --shadow-crisp: var(--background) -6px 6px 0 -4px, var(--role-accent) -6px 6px 0 0;
+    --shadow-crisp-primary: var(--background) -6px 6px 0 -4px, var(--role-primary) -6px 6px 0 0;
+
+    --ease-theme: 0.6s;    --ease-ui: 0.2s;  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --text: var(--foreground-light);
+      --background: var(--base-dark);
+      --surface: var(--foreground);
+      --link: var(--pride-silver);
+      --link-visited: #99a4a8;
+      --link-hover: var(--secondary-dark);
+      --role-secondary: var(--secondary-dark);
+      --role-accent: var(--accent-dark);
+      --rule: rgba(254, 254, 254, 0.12);
+    }
   }
-}
 
-* { box-sizing: border-box; }
+  :root[data-theme="dark"] {
+    --text: var(--foreground-light);
+    --background: var(--base-dark);
+    --surface: var(--foreground);
+    --link: var(--pride-silver);
+    --link-visited: #99a4a8;
+    --link-hover: var(--secondary-dark);
+    --role-secondary: var(--secondary-dark);
+    --role-accent: var(--accent-dark);
+    --rule: rgba(254, 254, 254, 0.12);
+  }
 
-body {
-  margin: 0 auto;
-  background: var(--bg);
-  color: var(--fg);
-  font-family: Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;
-  font-size: 16px;
-  -webkit-font-smoothing: antialiased;
-  max-width: 1600px;
-  padding: 16px 24px;
-}
+  * { box-sizing: border-box; }
 
-header {
-  margin: 0 auto 24px;
-}
+  body {
+    margin: 0;
+    padding: 0 var(--page-pad);
+    background: var(--background);
+    color: var(--text);
+    font-family: var(--font-serif);
+    font-size: var(--text-medium);
+    font-weight: var(--weight-body);
+    font-style: normal;
+    line-height: var(--leading-body);
+    transition: background-color var(--ease-theme), color var(--ease-theme);
+  }
 
-header h1 {
-  margin: 12px 0 0;
-  font-size: clamp(24px, 6vw, 48px);
-  line-height: 1;
-}
+  .content,
+  main > *:not(.wide):not(.full) {
+    max-width: var(--content-width);
+    margin-inline: auto;
+  }
 
-.home { color: var(--fg-dim); text-decoration: none; }
-.home:hover { color: var(--fg); text-decoration: underline; }
+  .wide { max-width: var(--wide-width); margin-inline: auto; }
+  .full { max-width: none; }
 
-.subtitle {
-  margin: 8px 0 0;
-  color: var(--fg-dim);
-}
+  main > * + * { margin-top: var(--block-gap); }
 
-.years {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--gap);
-}
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-serif);
+    font-weight: var(--weight-heading);
+    font-style: normal;
+    line-height: var(--leading-heading);
+    margin: 0;
+  }
 
-@media (min-width: 620px) {
-  .years { grid-template-columns: repeat(3, 1fr); }
-}
+  h1 { font-size: var(--text-x-large); }
+  h2 { font-size: var(--text-large); }
+  h3 { font-size: var(--text-medium); }
 
-.year {
-  display: grid;
-  grid-template-rows: auto auto auto;
-  gap: 2px;
-  padding: var(--gap);
-  background: var(--bg-raised);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  color: inherit;
-  text-decoration: none;
-  transition: border-color 0.25s, transform 0.25s;
-}
+  .display {
+    font-size: var(--text-xx-large);
+    font-weight: var(--weight-display);
+    line-height: 1;
+  }
 
-.year:hover,
-.year:focus-visible {
-  border-color: var(--accent);
-  transform: translateY(-2px);
-}
+  small, .small { font-size: var(--text-small); }
 
-.year:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-}
+  a { color: var(--link); text-decoration: underline; transition: color var(--ease-ui); }
+  a:hover, a:focus { color: var(--link-hover); }
+  a:visited { color: var(--link-visited); }
 
-.year img {
-  display: block;
-  width: 100%;
-  aspect-ratio: 1;
-  object-fit: cover;
-  border-radius: var(--radius);
-  margin-bottom: var(--gap);
-  background: var(--bg);
-}
+  :focus-visible { outline: 2px solid var(--role-primary); outline-offset: 2px; }
 
-.year-label {
-  font-size: 24px;
-  font-weight: 600;
-}
+  header { padding-block: var(--space-30); }
 
-.year-count {
-  color: var(--fg-dim);
-}
+  .button {
+    display: inline-block;
+    padding: 0.6em 1.2em;
+    border: 0;
+    border-radius: var(--radius-button);
+    background: var(--role-primary);
+    color: var(--primary-ink);
+    font: inherit;
+    font-weight: var(--weight-heading);
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color var(--ease-ui), box-shadow var(--ease-ui);
+  }
 
-@media (prefers-reduced-motion: reduce) {
-  * { transition: none !important; }
-}
+  .button:hover,
+  .button:visited:hover { background: var(--accent-dark); color: var(--base); box-shadow: var(--shadow-crisp-primary); }
+  .button:focus { background: var(--role-primary); color: var(--primary-ink); }
+  .button:active { background: var(--accent-dark); color: var(--base); }
+  .button:visited { color: var(--primary-ink); }
+
+  .button-quiet {
+    background: none;
+    color: var(--text);
+    box-shadow: none;
+    border-bottom: 2px solid transparent;
+    border-radius: 0;
+    opacity: 0.45;
+    padding: 2px 0;
+    font-weight: var(--weight-heading);
+    transition: opacity var(--ease-ui), border-color var(--ease-ui);
+  }
+
+  .button-quiet:hover,
+  .button-quiet[aria-pressed="true"] { opacity: 1; border-bottom-color: var(--role-accent); color: var(--text); }
+
+  .tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: var(--radius-tag);
+    background: var(--role-primary);
+    color: var(--primary-ink);
+    font-size: 0.7rem;
+    font-weight: var(--weight-strong);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+    gap: var(--block-gap);
+  }
+
+  .card {
+    display: block;
+    padding: 0.75rem;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    text-decoration: none;
+    transition: box-shadow var(--ease-ui);
+  }
+
+  a.card,
+  a.card:hover,
+  a.card:focus,
+  a.card:visited { color: var(--text); }
+
+  .card:hover { box-shadow: var(--shadow-crisp); }
+  .card:hover .card-title { color: var(--role-accent); }
+
+  .card-title {
+    font-family: var(--font-serif);
+    font-size: var(--text-large);
+    font-weight: var(--weight-strong);
+    transition: color var(--ease-ui);
+  }
+
+  .card-meta { font-size: var(--text-small); opacity: 0.75; margin: 0.15rem 0 0; }
+
+  .card > :last-child { margin-bottom: 0; }
+
+  .card img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 0;
+    object-fit: cover;
+    background: var(--background);
+    margin-bottom: 0.5rem;
+  }
+
+  @keyframes rainbow-drift {
+    from { background-position: 0% 0; }
+    to { background-position: -200% 0; }
+  }
+
+  .rainbow-text {
+    font-size: 2em;
+    font-weight: var(--weight-strong);
+    background-image: linear-gradient(90deg,
+      var(--rainbow-red), var(--rainbow-orange), var(--rainbow-yellow), var(--rainbow-lime), var(--rainbow-blue), var(--rainbow-indigo), var(--rainbow-violet),
+      var(--rainbow-red), var(--rainbow-orange), var(--rainbow-yellow), var(--rainbow-lime), var(--rainbow-blue), var(--rainbow-indigo), var(--rainbow-violet),
+      var(--rainbow-red));
+    background-size: 200% 100%;
+    background-repeat: repeat-x;
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    animation: rainbow-drift 18s linear infinite;
+  }
+
+  .rainbow-text:hover { animation-direction: reverse; }
+
+  footer {
+    max-width: var(--content-width);
+    margin: var(--space-50) auto 0;
+    padding-block: var(--space-30);
+    border-top: 1px solid var(--rule);
+    font-size: var(--text-small);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition: none !important; animation: none !important; }
+  }
+</style>
+<style>
+.cards { grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr)); }
+.card img { aspect-ratio: 4 / 3; }
+.card-title { display: block; }
 </style>
 </head>
 <body>
-<header>
-  <a class="home" href="../">← All galleries</a>
+<header class="wide">
+  <p class="small"><a href="https://david.garden">david.garden</a> › <a href="/">den</a> › <a href="../">galleries</a></p>
   <h1>david's Daily Photo Challenges</h1>
-  <div class="subtitle">For several years I set a personal challenge to take one photo per day. You can click into an individual year to see two views of each year's collection.</div>
+  <p>For several years I set a personal challenge to take one photo per day. You can click into an individual year to see two views of each year's collection.</p>
 </header>
 
-<main class="years">
-  <a class="year" href="2020/" data-year="2020">
-    <img src="2020/img/thumb/1-1.webp" alt="" decoding="async">
-    <span class="year-label">2020</span>
-    <span class="year-count">366 photos</span>
-  </a>
-  <a class="year" href="2022/" data-year="2022">
-    <img src="2022/img/thumb/1-1.webp" alt="" decoding="async">
-    <span class="year-label">2022</span>
-    <span class="year-count">365 photos</span>
-  </a>
-  <a class="year" href="2024/" data-year="2024">
-    <img src="2024/img/thumb/1-1.webp" alt="" decoding="async">
-    <span class="year-label">2024</span>
-    <span class="year-count">361 photos</span>
-  </a>
+<main>
+  <div class="cards wide">
+    <a class="card" href="2020/" data-year="2020">
+      <img src="2020/img/thumb/1-1.webp" alt="" decoding="async">
+      <span class="card-title">2020</span>
+      <p class="card-meta">366 photos</p>
+    </a>
+    <a class="card" href="2022/" data-year="2022">
+      <img src="2022/img/thumb/1-1.webp" alt="" decoding="async">
+      <span class="card-title">2022</span>
+      <p class="card-meta">365 photos</p>
+    </a>
+    <a class="card" href="2024/" data-year="2024">
+      <img src="2024/img/thumb/1-1.webp" alt="" decoding="async">
+      <span class="card-title">2024</span>
+      <p class="card-meta">361 photos</p>
+    </a>
+  </div>
 </main>
+
+<footer class="wide">
+  Part of <a href="/">den.david.garden</a>. Code MIT, content CC BY-SA 4.0.
+</footer>
 
 <script type="module">
 // Each cover shows a different day on every visit.
@@ -170,7 +364,7 @@ function randomDay(year) {
   return ids[Math.floor(Math.random() * ids.length)];
 }
 
-for (const card of document.querySelectorAll('.year[data-year]')) {
+for (const card of document.querySelectorAll('.card[data-year]')) {
   const year = Number(card.dataset.year);
   if (!(year in MISSING)) continue;
   card.querySelector('img').src = `${year}/img/thumb/${randomDay(year)}.webp`;
